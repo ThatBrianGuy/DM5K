@@ -1,0 +1,21 @@
+﻿@import "variables.scss";
+
+/* Works on Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: $button-dark $content-extra-dark;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+    width: 1rem;
+    height: 1rem;
+}
+
+*::-webkit-scrollbar-track {
+    background: $content-extra-dark;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: $button-dark;
+}

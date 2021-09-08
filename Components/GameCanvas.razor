@@ -1,0 +1,113 @@
+﻿@using Blazor.Extensions.Canvas
+@using Blazor.Extensions
+@using Blazor.Extensions.Canvas.Canvas2D
+@inject IJSRuntime jsr
+@inject DM5KDbContext db
+
+<div id="canvas-container" class="canvas-container" style="@_containerStyle">
+    <CascadingValue Value="this">
+        <div id="flex-grid-container" class="flex-grid-container">
+            @{
+                for (var y = 0; y < Map.Height; y++)
+                {
+                    var index = 0;
+                    <div class="flex-row" data-flex-row-id="@y">
+                        @for (var x = 0; x < Map.Width; x++)
+                        {
+                            <Token TileSize="@_tileSize" X="@x" Y="@y"
+                                   Character="@(Campaign.Characters.Where(c => c.X == (x * _tileSize) && c.Y == (y * _tileSize)).FirstOrDefault())"></Token>
+                            index++;
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </CascadingValue>
+    <div id="canvas-click-container">
+        <BECanvas @ref="_canvasRef" />
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public Campaign Campaign { get; set; }
+
+    [Parameter]
+    public Map Map { get; set; }
+
+    private int _tileSize { get; set; } = 50;
+    private string _containerStyle { get; set; }
+    private Canvas2DContext _context { get; set; }
+    protected BECanvasComponent _canvasRef { get; set; }
+
+    public Character DraggedCharacter { get; set; }
+
+    protected override void OnInitialized()
+    {
+        // Set container style
+        _containerStyle = string.Format("height: {0}px; width: {1}px; zoom: 1; -moz-transform: scale(1);"
+            , Map.Height * _tileSize
+            , Map.Width * _tileSize);
+
+        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Create the canvas object
+            _context = await _canvasRef.CreateCanvas2DAsync();
+
+            // Set Canvas height from map dimensions
+            await jsr.InvokeVoidAsync("canvasMethods.setDimensions", Map.Height * _tileSize, Map.Width * _tileSize);
+            await jsr.InvokeVoidAsync("canvasMethods.centerCanvas");
+            await jsr.InvokeVoidAsync("inputHandler.initialize", DotNetObjectReference.Create(this));
+
+            // Draw Canvas
+            await RedrawCanvas();
+        }
+
+        await base.OnInitializedAsync();
+    }
+
+    [JSInvokable]
+    public void Zoom(double scale)
+    {
+        // Set container style
+        _containerStyle = string.Format("height: {0}px; width: {1}px; zoom: {2}; -moz-transform: scale({2});"
+            , Map.Height * _tileSize
+            , Map.Width * _tileSize
+            , scale);
+        StateHasChanged();
+    }
+
+    public void SaveDB()
+    {
+        db.SaveChanges();
+    }
+
+    private async Task RedrawCanvas()
+    {
+        await DrawGrid();
+    }
+
+    private async Task DrawGrid()
+    {
+        for (var x = 0; x <= (Map.Width * _tileSize); x += _tileSize)
+        {
+            await _context.MoveToAsync(0.5 + x, 0);
+            await _context.LineToAsync(0.5 + x, (Map.Height * _tileSize));
+        }
+
+        for (var y = 0; y <= (Map.Height * _tileSize); y += _tileSize)
+        {
+            await _context.MoveToAsync(0, 0.5 + y);
+            await _context.LineToAsync((Map.Width * _tileSize), 0.5 + y);
+        }
+
+        await _context.SetStrokeStyleAsync("black");
+        await _context.StrokeAsync();
+    }
+}

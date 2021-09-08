@@ -1,0 +1,63 @@
+﻿<div class="main-game-menu @(MenuExpanded ? "main-game-menu-expanded" : "")">
+    <AccordionItem Title="Login">
+        <LoginDisplay></LoginDisplay>
+    </AccordionItem>
+    <AccordionItem Title="Campaign">
+        <form>
+            <div class="row">
+                <div class="nine columns">
+                    <select class="u-full-width" id="campaignsInput" @onchange="OnSelectedCampaignChanged">
+                        @if (Campaigns != null)
+                        {
+                            foreach (var c in Campaigns)
+                            {
+                                <option value="@c.ID">@c.Description</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="three columns">
+                    <button id="campaignsInputEdit" class="button-primary">Edit</button>
+                </div>
+            </div>
+            <div class="row">
+                <div class="nine columns">
+                    <select class="u-full-width" id="mapsInput">
+                        @if (_selectedCampaign?.Maps != null)
+                        {
+                            foreach (var m in _selectedCampaign.Maps)
+                            {
+                                <option value="@m.ID">@m.Description</option>
+                            }
+                        }
+                        }
+                    </select>
+                </div>
+                <div class="three columns">
+                    <button id="mapsInputEdit" class="button-primary">Edit</button>
+                </div>
+            </div>
+        </form>
+    </AccordionItem>
+</div>
+
+@code {
+    [Parameter]
+    public bool MenuExpanded { get; set; }
+
+    [Parameter]
+    public IEnumerable<Campaign> Campaigns { get; set; }
+    private Campaign _selectedCampaign { get; set; } = new Campaign();
+    private int _selectedCampaignId { get; set; }
+
+    private void OnSelectedCampaignChanged(ChangeEventArgs e)
+    {
+        _selectedCampaign = Campaigns.Where(x => x.ID == int.Parse(e.Value.ToString())).FirstOrDefault();
+    }
+
+    protected override void OnInitialized()
+    {
+        _selectedCampaign = Campaigns.FirstOrDefault();
+        base.OnInitialized();
+    }
+}

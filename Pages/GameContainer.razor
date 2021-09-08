@@ -1,0 +1,42 @@
+﻿@page "/"
+@using Microsoft.EntityFrameworkCore
+@inject DM5KDbContext db
+
+<button @onclick="OnToggleNavMenu" class="main-game-menu-toggle button-primary">Menu</button>
+<div class="main-game-zoom-slider-container @(_menuExpanded ? "main-game-zoom-slider-container-expanded" : "")">
+    <ZoomControl OnZoomSliderChanged="@((double scale) => { _gameCanvasRef.Zoom(scale); })" />
+</div>
+<GameMenu Campaigns="@Campaigns" MenuExpanded="@_menuExpanded" />
+<div id="main-game-container" class="main-game-container @(_menuExpanded ? "": "main-game-container-expanded")">
+    <GameCanvas @ref="_gameCanvasRef" Campaign="@SelectedCampaign" Map="@SelectedMap" />
+</div>
+
+@code {
+
+    public IEnumerable<Campaign> Campaigns { get; set; }
+    public Campaign SelectedCampaign { get; set; }
+    public Map SelectedMap { get; set; }
+
+    private GameCanvas _gameCanvasRef { get; set; }
+    private bool _menuExpanded { get; set; }
+    private string _menuClass { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+    }
+
+    protected override Task OnInitializedAsync()
+    {
+        Campaigns = db.Campaigns.Include(x => x.Maps).Include(y => y.Characters).ToList();
+        SelectedCampaign = Campaigns.FirstOrDefault();
+        SelectedMap = SelectedCampaign.Maps.FirstOrDefault();
+        return base.OnInitializedAsync();
+    }
+
+    private void OnToggleNavMenu()
+    {
+        _menuExpanded = !_menuExpanded;
+        StateHasChanged();
+    }
+}

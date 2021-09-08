@@ -1,0 +1,116 @@
+﻿
+@import "variables.scss";
+@import "accordion.scss";
+@import "scrollbars.scss";
+@import "skeleton.scss";
+@import "slider.scss";
+@import "tokens.scss";
+
+body {
+    background-color: $map-background;
+    color: $foreground;
+    height: 0;
+    width: 0;
+    overscroll-behavior: none;
+}
+
+/* Override Skeleton form style */
+form {
+    margin-bottom: auto !important;
+}
+button, input, optgroup, select, textarea {
+    color: initial !important;
+}
+
+.canvas-container {
+    position: absolute;
+    z-index: -1;
+    cursor: grab;
+}
+
+.canvas-container-grabbing {
+    cursor: grabbing !important;
+}
+
+.main-game-zoom-slider-container {
+    position: fixed;
+    bottom: 1.5em;
+    left: 1.5em;
+    width: 40rem;
+    left: 50vw;
+    transform: translate(-50%, 0);
+    transition-property: left;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in;
+}
+
+.main-game-zoom-slider-container-expanded {
+    left: calc(50vw - 20em) !important;
+    transition-property: left;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in;
+}
+
+div.main-game-container {
+    transition-property: width;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in;
+    cursor: grab;
+    overflow:auto;
+}
+
+button.main-game-menu-toggle {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+}
+
+div.main-game-menu {
+    transition-property: right;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in;
+    height: 100vh;
+    width: 40em;
+    position: fixed;
+    right: -40em;
+    background-color: $form-background;
+}
+
+div.main-game-menu-expanded {
+    right: 0em !important;
+}
+
+#blazor-error-ui {
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+#blazor-error-ui .dismiss {
+    cursor: pointer;
+    position: absolute;
+    right: 0.75rem;
+    top: 0.5rem;
+}
+
+.material-icons.md-18 {
+    font-size: 18px;
+}
+
+.material-icons.md-24 {
+    font-size: 24px;
+}
+
+.material-icons.md-36 {
+    font-size: 36px;
+}
+
+.material-icons.md-48 {
+    font-size: 48px;
+}

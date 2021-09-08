@@ -1,0 +1,28 @@
+﻿
+<div class="accordion-item-header">
+    <span>@Title</span>
+    <button class="button-primary" @onclick="OnExpandedClicked">
+        <span class="chevron @(_isExpanded ? "bottom" : "left")"></span>
+    </button>
+</div>
+
+<div class="accordion-item-content @(_isExpanded ? "expanded" : "")">
+    <div class="accordion-item-inner">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    private bool _isExpanded { get; set; } = false;
+
+    private void OnExpandedClicked()
+    {
+        _isExpanded = !_isExpanded;
+    }
+}

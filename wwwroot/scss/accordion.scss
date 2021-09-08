@@ -1,0 +1,68 @@
+﻿@import "variables.scss";
+
+div.accordion-item-header {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    font-size: 2.25rem;
+    border-bottom: 0.1rem solid $content-extra-dark;
+}
+
+div.accordion-item-header > button {
+    float: right;
+    line-height: 10px !important;
+}
+
+div.accordion-item-content {
+    width: 100%;
+    -webkit-transition: max-height 0.25s;
+    -moz-transition: max-height 0.25s;
+    -o-transition: max-height 0.25s;
+    transition: max-height 0.25s;
+    overflow: hidden;
+    max-height: 0;
+    background-color: $content-dark;
+}
+
+div.accordion-item-content.expanded {
+    max-height: 500px;
+}
+
+div.accordion-item-inner {
+    padding: 1.5rem;
+    border-bottom: 0.1rem solid $content-extra-dark;
+}
+
+.chevron {
+    font-size: small;
+}
+
+.chevron::before {
+    border-style: solid;
+    border-width: 0.25em 0.25em 0 0;
+    content: '';
+    display: inline-block;
+    height: 0.45em;
+    left: 0.15em;
+    position: relative;
+    top: 0.15em;
+    transform: rotate(-45deg);
+    vertical-align: top;
+    width: 0.45em;
+}
+
+.chevron.right:before {
+    left: 0;
+    transform: rotate(45deg);
+}
+
+.chevron.bottom:before {
+    top: 0;
+    transform: rotate(135deg);
+}
+
+.chevron.left:before {
+    left: 0.25em;
+    transform: rotate(-135deg);
+}

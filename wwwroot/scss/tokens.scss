@@ -1,0 +1,24 @@
+﻿
+div.character-token {
+    background-color: red;
+    user-select: none;
+}
+
+div.character-token-grabbing {
+    cursor: grabbing;
+}
+
+div.flex-grid-container {
+    position: absolute;
+    user-select: none;
+}
+
+div.flex-row {
+    height: 5rem;
+    display: flex;
+}
+
+div.flex-column {
+    width: 5rem;
+    flex: 1;
+}
