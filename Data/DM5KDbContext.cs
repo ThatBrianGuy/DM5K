@@ -26,13 +26,13 @@ namespace DM5K.Data
                 var TestCampaign = new Campaign()
                 {
                     Description = "Test Campaign",
-                    MasterName = "jonzie25@gmail.com",
+                    MasterName = "brian@brian.com",
                     Characters = new List<Character>()
                     {
                         new Character()
                         {
                             Name = "Guy",
-                            OwnerName = "jonzie25@gmail.com",
+                            OwnerName = "brian@brian.com",
                             Properties = new CharacterProperties()
                             {
                                 Height = 60,
@@ -42,7 +42,7 @@ namespace DM5K.Data
                         new Character()
                         {
                             Name = "Thomas",
-                            OwnerName = "jonzie25@gmail.com",
+                            OwnerName = "brian@brian.com",
                             Properties = new CharacterProperties()
                             {
                                 Height = 30,
