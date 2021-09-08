@@ -41,7 +41,7 @@ namespace DM5K.Data
                         },
                         new Character()
                         {
-                            Name = "Thomas",
+                            Name = "Bob",
                             OwnerName = "brian@brian.com",
                             Properties = new CharacterProperties()
                             {
