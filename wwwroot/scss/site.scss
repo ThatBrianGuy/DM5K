@@ -74,6 +74,7 @@ div.main-game-menu {
     position: fixed;
     right: -40em;
     background-color: $form-background;
+    touch-action: none;
 }
 
 div.main-game-menu-expanded {

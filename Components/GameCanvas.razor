@@ -6,26 +6,12 @@
 
 <div id="canvas-container" class="canvas-container" style="@_containerStyle">
     <CascadingValue Value="this">
-        <div id="flex-grid-container" class="flex-grid-container">
-            @{
-                for (var y = 0; y < Map.Height; y++)
-                {
-                    var index = 0;
-                    <div class="flex-row" data-flex-row-id="@y">
-                        @for (var x = 0; x < Map.Width; x++)
-                        {
-                            <Token TileSize="@_tileSize" X="@x" Y="@y"
-                                   Character="@(Campaign.Characters.Where(c => c.X == (x * _tileSize) && c.Y == (y * _tileSize)).FirstOrDefault())"></Token>
-                            index++;
-                        }
-                    </div>
-                }
+            @foreach (var c in Campaign.Characters)
+            {
+                <Token TileSize="@_tileSize" Character="@c"></Token>
             }
-        </div>
     </CascadingValue>
-    <div id="canvas-click-container">
-        <BECanvas @ref="_canvasRef" />
-    </div>
+    <BECanvas @ref="_canvasRef" />
 </div>
 
 @code {
@@ -61,9 +47,9 @@
             _context = await _canvasRef.CreateCanvas2DAsync();
 
             // Set Canvas height from map dimensions
-            await jsr.InvokeVoidAsync("canvasMethods.setDimensions", Map.Height * _tileSize, Map.Width * _tileSize);
+            await jsr.InvokeVoidAsync("canvasMethods.setDimensions", (Map.Height * _tileSize) + 1, (Map.Width * _tileSize) + 1);
             await jsr.InvokeVoidAsync("canvasMethods.centerCanvas");
-            await jsr.InvokeVoidAsync("inputHandler.initialize", DotNetObjectReference.Create(this));
+            await jsr.InvokeVoidAsync("inputHandler.initialize", DotNetObjectReference.Create(this), 0.5, 1.5, 0.1);
 
             // Draw Canvas
             await RedrawCanvas();
@@ -73,13 +59,20 @@
     }
 
     [JSInvokable]
-    public void Zoom(double scale)
+    public async Task TokenMove(int charId, int newX, int newY)
     {
-        // Set container style
-        _containerStyle = string.Format("height: {0}px; width: {1}px; zoom: {2}; -moz-transform: scale({2});"
-            , Map.Height * _tileSize
-            , Map.Width * _tileSize
-            , scale);
+        var character = db.Characters.SingleOrDefault(c => c.ID == charId);
+        if (character != null)
+        {
+            character.X = newX / _tileSize;
+            character.Y = newY / _tileSize;
+            await db.SaveChangesAsync();
+        }
+    }
+
+    public async Task Zoom(double scale)
+    {
+        await jsr.InvokeVoidAsync("inputHandler.zoom", scale);
         StateHasChanged();
     }
 

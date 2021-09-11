@@ -1,24 +1,17 @@
 ﻿
-div.character-token {
+div.token {
+    position: absolute;
+    height: 50px;
+    width: 50px;
+}
+
+div.token-selected {
+    border: 2px solid green;
+}
+
+div.token-content {
     background-color: red;
     user-select: none;
-}
-
-div.character-token-grabbing {
-    cursor: grabbing;
-}
-
-div.flex-grid-container {
-    position: absolute;
-    user-select: none;
-}
-
-div.flex-row {
-    height: 5rem;
-    display: flex;
-}
-
-div.flex-column {
-    width: 5rem;
-    flex: 1;
+    height: 100%;
+    width: 100%;
 }

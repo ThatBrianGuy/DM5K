@@ -1,16 +1,11 @@
-﻿<div class="flex-column @(Character == null ? "" : "character-token")
-            @(_dragging ? "character-token-grabbing" : "")" 
-     ondragover="event.preventDefault()"
-     @ondragstart="@HandleDragStart"
-     @ondrop="HandleDrop"
-     @ondragenter="HandleDragEnter"
-     @ondragend="HandleDragEnd"
-     @ondragleave="HandleDragLeave"
-     draggable="@(Character == null ? "false" : "true")"
-     data-flex-row-id="@Y" 
-     data-flex-col-id="@X"
-     data-character-id="@_characterId" 
-     id="character-@_characterId">@(Character == null ? "": Character.Name)</div>
+﻿<div class="flex-column token" 
+     style="@_tokenStyle"
+     data-character-id="@Character.ID" 
+     id="character-@Character.ID">
+    <div class="token-content">
+        @(Character == null ? "": Character.Name)
+    </div>    
+</div>
 
 @code {
     [CascadingParameter]
@@ -20,98 +15,92 @@
     public Character Character { get; set; }
 
     [Parameter]
-    public int X { get; set; }
-
-    [Parameter]
-    public int Y { get; set; }
-
-    [Parameter]
     public int TileSize { get; set; }
 
-    private bool _dragging { get; set; }
-    private int _characterId { get; set; } = -1;
-    private string _characterName { get; set; } = "";
+    private string _tokenStyle { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _tokenStyle = string.Format("left: {0}px; top: {1}px;", Character.X * TileSize, Character.Y * TileSize);
+        base.OnInitialized();
+    }
 
     protected override void OnParametersSet()
     {
-        if (Character != null)
-        {
-            _characterId = Character.ID;
-            _characterName = Character.Name;
-        }
+        _tokenStyle = string.Format("left: {0}px; top: {1}px;", Character.X * TileSize, Character.Y * TileSize);
         base.OnParametersSet();
     }
 
-    public void HandleDragStart()
-    {
-        // On drag start, transfer this Character context to the parent container...
-        Container.DraggedCharacter = this.Character;
-        _dragging = true;
-    }
+    //public void HandleDragStart()
+    //{
+    //    // On drag start, transfer this Character context to the parent container...
+    //    Container.DraggedCharacter = this.Character;
+    //    _dragging = true;
+    //}
 
-    private void HandleDrop(DragEventArgs e)
-    {
-        // Ensure no other Character exists at this spot
-        if (Character == null)
-        {
-            // Set this Character context to the one on the parent...
-            Character = Container.DraggedCharacter;
-            // .. and reset the parent's context to null
-            Container.DraggedCharacter = null;
+    //private void HandleDrop(DragEventArgs e)
+    //{
+    //    // Ensure no other Character exists at this spot
+    //    if (Character == null)
+    //    {
+    //        // Set this Character context to the one on the parent...
+    //        Character = Container.DraggedCharacter;
+    //        // .. and reset the parent's context to null
+    //        Container.DraggedCharacter = null;
 
-            // Update this character with this token's coordinates
-            Character.X = (this.X * this.TileSize);
-            Character.Y = (this.Y * this.TileSize);
-            Container.SaveDB();
-        }
-    }
+    //        // Update this character with this token's coordinates
+    //        Character.X = (this.X * this.TileSize);
+    //        Character.Y = (this.Y * this.TileSize);
+    //        Container.SaveDB();
+    //    }
+    //}
 
-    private void HandleDragEnd()
-    {
-        if (Container.DraggedCharacter == null)
-        {
-            this.Character = null;
-        }
-        _dragging = false;
-    }
+    //private void HandleDragEnd()
+    //{
+    //    if (Container.DraggedCharacter == null)
+    //    {
+    //        this.Character = null;
+    //    }
+    //    _dragging = false;
+    //}
 
-    private void HandleTouchDragEnd(TouchEventArgs e)
-    {
-        // If the container has a dragged character, assign it here
-        if (Container.DraggedCharacter != null)
-        {
-            // Set this Character context to the one on the parent...
-            Character = Container.DraggedCharacter;
-            // .. and reset the parent's context to null
-            Container.DraggedCharacter = null;
+    //private void HandleTouchDragEnd(TouchEventArgs e)
+    //{
+    //    // If the container has a dragged character, assign it here
+    //    if (Container.DraggedCharacter != null)
+    //    {
+    //        // Set this Character context to the one on the parent...
+    //        Character = Container.DraggedCharacter;
+    //        // .. and reset the parent's context to null
+    //        Container.DraggedCharacter = null;
 
-            // Determine which tile cursor ended on
-            var x = e.ChangedTouches.FirstOrDefault().ClientX;
-            var y = e.ChangedTouches.FirstOrDefault().ClientY;
-            var xsnap = (x - (x % this.TileSize));
-            var ysnap = (y - (y % this.TileSize));
-            var xpos = xsnap / this.TileSize;
-            var ypos = ysnap / this.TileSize;
+    //        // Determine which tile cursor ended on
+    //        var x = e.ChangedTouches.FirstOrDefault().ClientX;
+    //        var y = e.ChangedTouches.FirstOrDefault().ClientY;
+    //        var xsnap = (x - (x % this.TileSize));
+    //        var ysnap = (y - (y % this.TileSize));
+    //        var xpos = xsnap / this.TileSize;
+    //        var ypos = ysnap / this.TileSize;
 
-            // Find this Character's original token
-            var tempChar = this.Character;
-            this.Character = null;
-            // Update this character with this token's coordinates
-            tempChar.X = (int)xsnap;
-            tempChar.Y = (int)ysnap;
+    //        // Find this Character's original token
+    //        var tempChar = this.Character;
+    //        this.Character = null;
+    //        // Update this character with this token's coordinates
+    //        tempChar.X = (int)xsnap;
+    //        tempChar.Y = (int)ysnap;
 
-            Container.SaveDB();
-            StateHasChanged();
-        }
-    }
+    //        Container.SaveDB();
+    //        StateHasChanged();
+    //    }
+    //}
 
-    private void HandleDragEnter()
-    {
+    //private void HandleDragEnter()
+    //{
 
-    }
+    //}
 
-    private void HandleDragLeave()
-    {
+    //private void HandleDragLeave()
+    //{
 
-    }
+    //}
 }

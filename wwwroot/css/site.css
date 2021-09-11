@@ -631,24 +631,19 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
   background: #42858C; }
 
-div.character-token {
-  background-color: red;
-  user-select: none; }
-
-div.character-token-grabbing {
-  cursor: grabbing; }
-
-div.flex-grid-container {
+div.token {
   position: absolute;
-  user-select: none; }
+  height: 50px;
+  width: 50px; }
 
-div.flex-row {
-  height: 5rem;
-  display: flex; }
+div.token-selected {
+  border: 2px solid green; }
 
-div.flex-column {
-  width: 5rem;
-  flex: 1; }
+div.token-content {
+  background-color: red;
+  user-select: none;
+  height: 100%;
+  width: 100%; }
 
 body {
   background-color: #FDEED8;
@@ -709,7 +704,8 @@ div.main-game-menu {
   width: 40em;
   position: fixed;
   right: -40em;
-  background-color: #35393C; }
+  background-color: #35393C;
+  touch-action: none; }
 
 div.main-game-menu-expanded {
   right: 0em !important; }

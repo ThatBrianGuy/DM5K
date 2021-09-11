@@ -4,7 +4,7 @@
 
 <button @onclick="OnToggleNavMenu" class="main-game-menu-toggle button-primary">Menu</button>
 <div class="main-game-zoom-slider-container @(_menuExpanded ? "main-game-zoom-slider-container-expanded" : "")">
-    <ZoomControl OnZoomSliderChanged="@((double scale) => { _gameCanvasRef.Zoom(scale); })" />
+    <ZoomControl MaxValue="@_scaleMax" MinValue="@_scaleMin" />
 </div>
 <GameMenu Campaigns="@Campaigns" MenuExpanded="@_menuExpanded" />
 <div id="main-game-container" class="main-game-container @(_menuExpanded ? "": "main-game-container-expanded")">
@@ -20,6 +20,8 @@
     private GameCanvas _gameCanvasRef { get; set; }
     private bool _menuExpanded { get; set; }
     private string _menuClass { get; set; }
+    private double _scaleMin { get; set; } = 0.50;
+    private double _scaleMax { get; set; } = 1.5;
 
     protected override void OnInitialized()
     {
