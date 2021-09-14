@@ -17,7 +17,7 @@ form {
     margin-bottom: auto !important;
 }
 button, input, optgroup, select, textarea {
-    color: initial !important;
+    color: $content-dark !important;
 }
 
 #main-game-fullscreen-container {
@@ -71,10 +71,18 @@ div.main-game-container-expanded {
     width: 100vw;
 }
 
-button.main-game-menu-toggle {
+div.main-game-menu-buttons-container {
     position: fixed;
     top: 1em;
     left: 1em;
+}
+
+button.main-game-menu-button {
+    padding: 0.2rem;
+    height: 3.7em;
+    margin-bottom: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
 }
 
 div.main-game-menu {

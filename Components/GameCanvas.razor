@@ -88,29 +88,37 @@
             _context = await _canvasRef.CreateCanvas2DAsync();
 
             // Set Canvas height from map dimensions
-            await jsr.InvokeVoidAsync("canvasMethods.setDimensions", (Map.Height * _tileSize) + 1, (Map.Width * _tileSize) + 1);
+            await jsr.InvokeVoidAsync("canvasMethods.setDimensions", (Map.Height * _tileSize) + 1, (Map.Width * _tileSize) + 1, DotNetObjectReference.Create(this));
 
             // Draw Canvas
             await RedrawCanvas();
 
-            // Get window dimensions
-            var dim = await jsr.InvokeAsync<WindowDimension>("canvasMethods.getWindowDimensions");
-            _viewHeight = dim.Height;
-            _viewWidth = dim.Width;
-            // If viewport is smaller than map, scroll to center
-            if (_viewHeight < (Map.Height * _tileSize) || (_viewWidth < (Map.Width * _tileSize)))
-            {
-                var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
-                var dy = ((Map.Height * _tileSize) * Scale) - _viewHeight;
-                _maxScrollX = dx;
-                _maxScrollY = dy;
-                ScrollOffsetX = (int)(dx / 2);
-                ScrollOffsetY = (int)(dy / 2);
-                await jsr.InvokeVoidAsync("canvasMethods.scrollWindow", ScrollOffsetX, ScrollOffsetY);
-            }
+            // Get browser size and center window
+            await OnBrowserResize();
         }
 
         await base.OnInitializedAsync();
+    }
+
+    [JSInvokable]
+    public async Task OnBrowserResize()
+    {
+        // Get window dimensions
+        var dim = await jsr.InvokeAsync<WindowDimension>("canvasMethods.getWindowDimensions");
+        _viewHeight = dim.Height;
+        _viewWidth = dim.Width;
+
+        // If viewport is smaller than map, scroll to center
+        if (_viewHeight < (Map.Height * _tileSize) || (_viewWidth < (Map.Width * _tileSize)))
+        {
+            var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
+            var dy = ((Map.Height * _tileSize) * Scale) - _viewHeight;
+            _maxScrollX = dx;
+            _maxScrollY = dy;
+            ScrollOffsetX = (int)(dx / 2);
+            ScrollOffsetY = (int)(dy / 2);
+            await jsr.InvokeVoidAsync("canvasMethods.scrollWindow", ScrollOffsetX, ScrollOffsetY);
+        }
     }
 
     public void Zoom(double scale)
@@ -175,7 +183,6 @@
 
     private void HandleMapDrag(CanvasEventArgs e)
     {
-
         // If no token is currently being dragged..
         if (DraggedToken == null)
         {
@@ -220,11 +227,13 @@
             jsr.InvokeVoidAsync("canvasMethods.scrollWindow", ScrollOffsetX, ScrollOffsetY);
         }
 
-        // Token is still dragging..
+        // Token has finished dragging..
         if (DraggedToken != null)
         {
             // .. Reset dragged token
             DraggedToken = null;
+            // .. Save the changes to the DB
+            db.SaveChanges();
         }
 
         _startScale = -1;

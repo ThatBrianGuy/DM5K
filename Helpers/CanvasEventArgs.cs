@@ -8,5 +8,6 @@
         public double DeltaY { get; set; }
         public double StartX { get; set; }
         public double StartY { get; set; }
+        public bool IsTouchEvent { get; set; }
     }
 }

@@ -6,7 +6,14 @@
 
 @inject DM5KDbContext db
 <div id="main-game-fullscreen-container">
-    <button @onclick="OnToggleNavMenu" class="main-game-menu-toggle button-primary">Menu</button>
+    <div class="main-game-menu-buttons-container">
+        <button @onclick="OnToggleNavMenu" class="main-game-menu-button button-primary">
+            <span class="material-icons md-48">menu</span>
+        </button>
+        <button @onclick="OnRefresh" class="main-game-menu-button button-primary">
+            <span class="material-icons md-48">sync</span>
+        </button>
+    </div>
     <div class="main-game-zoom-slider-container @(_menuExpanded ? "main-game-zoom-slider-container-expanded" : "")">
         <ZoomControl MaxValue="@_scaleMax" MinValue="@_scaleMin"
                      ZoomValue="@_scale" ScaleStep="@_scaleStep"
@@ -52,6 +59,11 @@
     {
         _menuExpanded = !_menuExpanded;
         _gameCanvasRef.ResetMaxScroll();
+        StateHasChanged();
+    }
+
+    private async Task OnRefresh()
+    {
         StateHasChanged();
     }
 

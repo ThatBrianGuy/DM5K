@@ -20,7 +20,7 @@
         </div>
         <div class="two columns">
             <button type="button" @onclick="@ToggleFullScreen" class="button button-primary zoom-button">
-                <span class="material-icons">fullscreen</span>
+                <span class="material-icons">@(_fullscreenState ? "fullscreen_exit" : "fullscreen")</span>
             </button>
         </div>
     </div>
@@ -42,6 +42,8 @@
     [Parameter]
     public double ScaleStep { get; set; }
 
+    private bool _fullscreenState { get; set; } = false;
+
     private void OnSliderChanged(ChangeEventArgs e)
     {
         ZoomValue = double.Parse(e.Value.ToString());
@@ -56,7 +58,6 @@
             //_value = ZoomValue;
             OnZoomSliderChanged?.Invoke(ZoomValue);
         }
-
     }
 
     private void OnZoomMinus()
@@ -67,11 +68,11 @@
             //_value = ZoomValue;
             OnZoomSliderChanged?.Invoke(ZoomValue);
         }
-
     }
 
-    private void ToggleFullScreen()
+    private async Task ToggleFullScreen()
     {
-        jsr.InvokeVoidAsync("canvasMethods.toggleFullscreen");
+        _fullscreenState = !_fullscreenState;
+        await jsr.InvokeVoidAsync("canvasMethods.toggleFullscreen", _fullscreenState);
     }
 }

@@ -49,6 +49,7 @@
     private double _xWheelStart { get; set; } = 0;
     private double _yWheelStart { get; set; } = 0;
     private bool _lostFocus { get; set; } = false;
+    private bool _isScaling { get; set; } = false;
 
     private void HandleOnMouseDown(MouseEventArgs e)
     {
@@ -129,7 +130,8 @@
                 StartX = _xStart,
                 StartY = _yStart,
                 ClientX = t.ClientX,
-                ClientY = t.ClientY
+                ClientY = t.ClientY,
+                IsTouchEvent = true
             });
 
         }
@@ -137,6 +139,7 @@
         {
             _distStart = Math.Sqrt((Math.Pow(e.Touches[0].ClientX - e.Touches[1].ClientX, 2)
                 + Math.Pow(e.Touches[0].ClientY - e.Touches[1].ClientY, 2)));
+            _isScaling = true;
         }
     }
 
@@ -144,29 +147,36 @@
     {
         if (e.Touches.Length == 1)
         {
-            //var t = e.Touches.FirstOrDefault();
-            //OnDrag?.Invoke(new CanvasEventArgs()
-            //{
-            //    StartX = _xStart,
-            //    StartY = _yStart,
-            //    ClientX = t.ClientX,
-            //    ClientY = t.ClientY,
-            //    DeltaX = (t.ClientX - _xStart),
-            //    DeltaY = (t.ClientY - _yStart)
-            //});
-
+            var t = e.Touches.FirstOrDefault();
+            OnDrag?.Invoke(new CanvasEventArgs()
+            {
+                StartX = _xStart,
+                StartY = _yStart,
+                ClientX = t.ClientX,
+                ClientY = t.ClientY,
+                DeltaX = (t.ClientX - _xStart),
+                DeltaY = (t.ClientY - _yStart),
+                IsTouchEvent = true
+            });
         }
         else if (e.Touches.Length == 2)
         {
+            _isScaling = true;
             var newDist = Math.Sqrt((Math.Pow(e.Touches[0].ClientX - e.Touches[1].ClientX, 2)
                 + Math.Pow(e.Touches[0].ClientY - e.Touches[1].ClientY, 2)));
-                OnTouchScale?.Invoke(_distStart, newDist);
+            OnTouchScale?.Invoke(_distStart, newDist);
         }
     }
 
     private void HandleOnTouchEnd(TouchEventArgs e)
     {
-        if (e.Touches.Length == 1)
+        // User has finished zooming, one finger releases before the other
+        if (e.Touches.Length == 1 && e.ChangedTouches.Length == 1)
+        {
+            _isScaling = false;
+        }
+        // Normal drag
+        else if (e.ChangedTouches.Length == 1 && !_isScaling)
         {
             var t = e.ChangedTouches.FirstOrDefault();
             OnDragEnd?.Invoke(new CanvasEventArgs()
@@ -176,7 +186,8 @@
                 ClientX = t.ClientX,
                 ClientY = t.ClientY,
                 DeltaX = (t.ClientX - _xStart),
-                DeltaY = (t.ClientY - _yStart)
+                DeltaY = (t.ClientY - _yStart),
+                IsTouchEvent = true
             });
         }
     }

@@ -1,5 +1,5 @@
 ﻿window.canvasMethods = {
-    setDimensions: function (height, width) {
+    setDimensions: function (height, width, netObj) {
         var canvas = document.querySelector('canvas');
         canvas.style.width = '100%';
         canvas.style.height = '100%';
@@ -8,8 +8,11 @@
 
         window.addEventListener('DOMMouseScroll', preventDefault, false); // older FF
         window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
-        //window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
+        window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
         window.addEventListener('keydown', preventDefaultForScrollKeys, false);
+        window.onresize = function () {
+            netObj.invokeMethodAsync("OnBrowserResize");
+        }
 
     },
     zoom: function (scale) {
@@ -33,11 +36,11 @@
             y: c.scrollY
         };
     },
-    toggleFullscreen: function () {
-        if (document.fullscreenElement) {
-            document.exitFullscreen();
+    toggleFullscreen: function (state) {
+        if (state) {
+            document.getElementById('main-game-fullscreen-container').requestFullscreen();
         } else {
-            var f = document.getElementById('main-game-fullscreen-container').requestFullscreen();
+            document.exitFullscreen();
         }
     }
 }
