@@ -1,11 +1,15 @@
-﻿<div class="flex-column token" 
-     style="@_tokenStyle"
-     data-character-id="@Character.ID" 
-     id="character-@Character.ID">
-    <div class="token-content">
-        @(Character == null ? "": Character.Name)
-    </div>    
-</div>
+﻿@using DM5K.Models
+@using DM5K.Helpers
+@inject IJSRuntime jsr
+
+<InputHandler CssClass="flex-column token"
+              CssStyle="@_tokenStyle"
+              OnPressDown="@HandleOnPressDown"
+              ID="@string.Format("character-id-{0}", Character.ID)">
+    <ChildContent>
+        <img src="@Character.Url" draggable="false" alt="Image" height="50" width="50" />
+    </ChildContent>
+</InputHandler>
 
 @code {
     [CascadingParameter]
@@ -21,86 +25,20 @@
 
     protected override void OnInitialized()
     {
-        _tokenStyle = string.Format("left: {0}px; top: {1}px;", Character.X * TileSize, Character.Y * TileSize);
+        SetCharacterPosition();
         base.OnInitialized();
     }
 
-    protected override void OnParametersSet()
+    public void HandleOnPressDown(CanvasEventArgs e)
     {
-        _tokenStyle = string.Format("left: {0}px; top: {1}px;", Character.X * TileSize, Character.Y * TileSize);
-        base.OnParametersSet();
+        Container.DraggedToken = this;
+        Container.DraggedTokenStartPosX = this.Character.X;
+        Container.DraggedTokenStartPosY = this.Character.Y;
+        jsr.InvokeAsync<string>("console.log", string.Format("token mousedown: x: {0}, y: {1}, dx: {2}, dy: {3}", e.StartX, e.StartY, e.DeltaX, e.DeltaY));
     }
 
-    //public void HandleDragStart()
-    //{
-    //    // On drag start, transfer this Character context to the parent container...
-    //    Container.DraggedCharacter = this.Character;
-    //    _dragging = true;
-    //}
-
-    //private void HandleDrop(DragEventArgs e)
-    //{
-    //    // Ensure no other Character exists at this spot
-    //    if (Character == null)
-    //    {
-    //        // Set this Character context to the one on the parent...
-    //        Character = Container.DraggedCharacter;
-    //        // .. and reset the parent's context to null
-    //        Container.DraggedCharacter = null;
-
-    //        // Update this character with this token's coordinates
-    //        Character.X = (this.X * this.TileSize);
-    //        Character.Y = (this.Y * this.TileSize);
-    //        Container.SaveDB();
-    //    }
-    //}
-
-    //private void HandleDragEnd()
-    //{
-    //    if (Container.DraggedCharacter == null)
-    //    {
-    //        this.Character = null;
-    //    }
-    //    _dragging = false;
-    //}
-
-    //private void HandleTouchDragEnd(TouchEventArgs e)
-    //{
-    //    // If the container has a dragged character, assign it here
-    //    if (Container.DraggedCharacter != null)
-    //    {
-    //        // Set this Character context to the one on the parent...
-    //        Character = Container.DraggedCharacter;
-    //        // .. and reset the parent's context to null
-    //        Container.DraggedCharacter = null;
-
-    //        // Determine which tile cursor ended on
-    //        var x = e.ChangedTouches.FirstOrDefault().ClientX;
-    //        var y = e.ChangedTouches.FirstOrDefault().ClientY;
-    //        var xsnap = (x - (x % this.TileSize));
-    //        var ysnap = (y - (y % this.TileSize));
-    //        var xpos = xsnap / this.TileSize;
-    //        var ypos = ysnap / this.TileSize;
-
-    //        // Find this Character's original token
-    //        var tempChar = this.Character;
-    //        this.Character = null;
-    //        // Update this character with this token's coordinates
-    //        tempChar.X = (int)xsnap;
-    //        tempChar.Y = (int)ysnap;
-
-    //        Container.SaveDB();
-    //        StateHasChanged();
-    //    }
-    //}
-
-    //private void HandleDragEnter()
-    //{
-
-    //}
-
-    //private void HandleDragLeave()
-    //{
-
-    //}
+    public void SetCharacterPosition()
+    {
+        _tokenStyle = string.Format("left: {0}px; top: {1}px;", Character.X, Character.Y);
+    }
 }

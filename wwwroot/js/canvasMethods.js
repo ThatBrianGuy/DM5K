@@ -5,16 +5,65 @@
         canvas.style.height = '100%';
         canvas.width = width;
         canvas.height = height;
+
+        window.addEventListener('DOMMouseScroll', preventDefault, false); // older FF
+        window.addEventListener(wheelEvent, preventDefault, wheelOpt); // modern desktop
+        //window.addEventListener('touchmove', preventDefault, wheelOpt); // mobile
+        window.addEventListener('keydown', preventDefaultForScrollKeys, false);
+
     },
-    centerCanvas: function () {
-        // Initialize position in the center
-        var c = document.getElementById("canvas-container");
-        var dy = c.clientHeight - window.innerHeight;
-        var dx = c.clientWidth - window.innerWidth;
-        var newX = 0;
-        var newY = 0;
-        if (dy > 0) { newY = dy / 2; }
-        if (dx > 0) { newX = dx / 2; }
-        window.scrollTo(newX, newY);
+    zoom: function (scale) {
+        alert(scale);
+    },
+    scrollWindow: function (x, y) {
+        var c = document.getElementById('main-game-container');
+        c.scrollTo(x, y);
+    },
+    getWindowDimensions: function () {
+        var c = document.getElementById('main-game-container');
+        return {
+            width: c.clientWidth,
+            height: c.clientHeight
+        };
+    },
+    getScrollPosition: function () {
+        var c = document.getElementById('main-game-container');
+        return {
+            x: c.scrollX,
+            y: c.scrollY
+        };
+    },
+    toggleFullscreen: function () {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else {
+            var f = document.getElementById('main-game-fullscreen-container').requestFullscreen();
+        }
     }
 }
+
+// left: 37, up: 38, right: 39, down: 40,
+// spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
+var keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
+
+function preventDefault(e) {
+    e.preventDefault();
+}
+
+function preventDefaultForScrollKeys(e) {
+    if (keys[e.keyCode]) {
+        preventDefault(e);
+        return false;
+    }
+}
+
+// modern Chrome requires { passive: false } when adding event
+var supportsPassive = false;
+try {
+    window.addEventListener("test", null, Object.defineProperty({}, 'passive', {
+        get: function () { supportsPassive = true; }
+    }));
+} catch (e) { }
+
+var wheelOpt = supportsPassive ? { passive: false } : false;
+var wheelEvent = 'onwheel' in document.createElement('div') ? 'wheel' : 'mousewheel';

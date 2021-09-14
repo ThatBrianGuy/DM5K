@@ -1,0 +1,183 @@
+﻿@using DM5K.Helpers
+
+<div @onmousedown="@HandleOnMouseDown"
+     @onmousemove="@HandleMouseMove"
+     @onmouseup="@HandleOnMouseUp"
+     @onmousewheel="@HandleOnMouseWheel"
+     @onmouseout="@HandleOnMouseOut"
+     @onmouseover="@HandleOnMouseOver"
+     @ontouchstart="@HandleOnTouchStart"
+     @ontouchmove="@HandleOnTouchMove"
+     @ontouchend="@HandleOnTouchEnd"
+     class="@CssClass"
+     style="@CssStyle"
+     id="@ID">
+    @ChildContent
+</div>
+
+@code {
+    [Parameter]
+    public string ID { get; set; }
+
+    [Parameter]
+    public string CssClass { get; set; }
+
+    [Parameter]
+    public string CssStyle { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public Action<CanvasEventArgs> OnDrag { get; set; }
+
+    [Parameter]
+    public Action<CanvasEventArgs> OnDragEnd { get; set; }
+
+    [Parameter]
+    public Action<bool> OnZoom { get; set; }
+
+    [Parameter]
+    public Action<double, double> OnTouchScale { get; set; }
+
+    [Parameter]
+    public Action<CanvasEventArgs> OnPressDown { get; set; }
+
+    private double _xStart { get; set; } = 0;
+    private double _yStart { get; set; } = 0;
+    private double _distStart { get; set; } = 0;
+    private double _xWheelStart { get; set; } = 0;
+    private double _yWheelStart { get; set; } = 0;
+    private bool _lostFocus { get; set; } = false;
+
+    private void HandleOnMouseDown(MouseEventArgs e)
+    {
+        if (e.Buttons == 1)
+        {
+            _xStart = e.ClientX;
+            _yStart = e.ClientY;
+            OnPressDown?.Invoke(new CanvasEventArgs()
+            {
+                StartX = _xStart,
+                StartY = _yStart,
+                ClientX = e.ClientX,
+                ClientY = e.ClientY
+            });
+        }
+    }
+
+    private void HandleMouseMove(MouseEventArgs e)
+    {
+        if (e.Buttons == 1)
+        {
+            OnDrag?.Invoke(new CanvasEventArgs()
+            {
+                StartX = _xStart,
+                StartY = _yStart,
+                ClientX = e.ClientX,
+                ClientY = e.ClientY,
+                DeltaX = (e.ClientX - _xStart),
+                DeltaY = (e.ClientY - _yStart)
+            });
+        }
+    }
+
+    private void HandleOnMouseUp(MouseEventArgs e)
+    {
+        OnDragEnd?.Invoke(new CanvasEventArgs()
+        {
+            StartX = _xStart,
+            StartY = _yStart,
+            ClientX = e.ClientX,
+            ClientY = e.ClientY,
+            DeltaX = (e.ClientX - _xStart),
+            DeltaY = (e.ClientY - _yStart)
+        });
+    }
+
+    private void HandleOnMouseOut(MouseEventArgs e)
+    {
+        _lostFocus = true;
+    }
+
+    private void HandleOnMouseOver(MouseEventArgs e)
+    {
+        _lostFocus = false;
+    }
+
+    private void HandleOnMouseWheel(WheelEventArgs e)
+    {
+        if (e.DeltaY < 1)
+        {
+            OnZoom?.Invoke(true);
+        }
+        else
+        {
+            OnZoom?.Invoke(false);
+        }
+    }
+
+    private void HandleOnTouchStart(TouchEventArgs e)
+    {
+        if (e.Touches.Length == 1)
+        {
+            var t = e.Touches.FirstOrDefault();
+            _xStart = t.ClientX;
+            _yStart = t.ClientY;
+            OnPressDown?.Invoke(new CanvasEventArgs()
+            {
+                StartX = _xStart,
+                StartY = _yStart,
+                ClientX = t.ClientX,
+                ClientY = t.ClientY
+            });
+
+        }
+        else if (e.Touches.Length == 2)
+        {
+            _distStart = Math.Sqrt((Math.Pow(e.Touches[0].ClientX - e.Touches[1].ClientX, 2)
+                + Math.Pow(e.Touches[0].ClientY - e.Touches[1].ClientY, 2)));
+        }
+    }
+
+    private void HandleOnTouchMove(TouchEventArgs e)
+    {
+        if (e.Touches.Length == 1)
+        {
+            //var t = e.Touches.FirstOrDefault();
+            //OnDrag?.Invoke(new CanvasEventArgs()
+            //{
+            //    StartX = _xStart,
+            //    StartY = _yStart,
+            //    ClientX = t.ClientX,
+            //    ClientY = t.ClientY,
+            //    DeltaX = (t.ClientX - _xStart),
+            //    DeltaY = (t.ClientY - _yStart)
+            //});
+
+        }
+        else if (e.Touches.Length == 2)
+        {
+            var newDist = Math.Sqrt((Math.Pow(e.Touches[0].ClientX - e.Touches[1].ClientX, 2)
+                + Math.Pow(e.Touches[0].ClientY - e.Touches[1].ClientY, 2)));
+                OnTouchScale?.Invoke(_distStart, newDist);
+        }
+    }
+
+    private void HandleOnTouchEnd(TouchEventArgs e)
+    {
+        if (e.Touches.Length == 1)
+        {
+            var t = e.ChangedTouches.FirstOrDefault();
+            OnDragEnd?.Invoke(new CanvasEventArgs()
+            {
+                StartX = _xStart,
+                StartY = _yStart,
+                ClientX = t.ClientX,
+                ClientY = t.ClientY,
+                DeltaX = (t.ClientX - _xStart),
+                DeltaY = (t.ClientY - _yStart)
+            });
+        }
+    }
+}

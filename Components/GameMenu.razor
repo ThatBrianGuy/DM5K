@@ -1,4 +1,7 @@
-﻿<div class="main-game-menu @(MenuExpanded ? "main-game-menu-expanded" : "")">
+﻿@using DM5K.Models
+@using DM5K.Shared
+
+<div class="main-game-menu @(MenuExpanded ? "main-game-menu-expanded" : "")">
     <AccordionItem Title="Login">
         <LoginDisplay></LoginDisplay>
     </AccordionItem>

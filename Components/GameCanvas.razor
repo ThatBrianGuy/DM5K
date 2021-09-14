@@ -1,18 +1,30 @@
 ﻿@using Blazor.Extensions.Canvas
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
+@using DM5K.Data
+@using DM5K.Models
+@using DM5K.Helpers
+@using DM5K.Components 
+
 @inject IJSRuntime jsr
 @inject DM5KDbContext db
 
-<div id="canvas-container" class="canvas-container" style="@_containerStyle">
+<InputHandler ID="canvas-container"
+              OnPressDown="@HandleMapDragStart"
+              OnDrag="@HandleMapDrag"
+              OnDragEnd="@HandleMapDragEnd"
+              OnZoom="@HandleZoom"
+              OnTouchScale="@HandleTouchScale"
+              CssClass="canvas-container"
+              CssStyle="@_containerStyle">
     <CascadingValue Value="this">
-            @foreach (var c in Campaign.Characters)
-            {
-                <Token TileSize="@_tileSize" Character="@c"></Token>
-            }
+        @foreach (var c in Campaign?.Characters)
+        {
+            <Token TileSize="@_tileSize" Character="@c"></Token>
+        }
     </CascadingValue>
     <BECanvas @ref="_canvasRef" />
-</div>
+</InputHandler>
 
 @code {
 
@@ -22,12 +34,41 @@
     [Parameter]
     public Map Map { get; set; }
 
+    [Parameter]
+    public int ScrollOffsetX { get; set; } = 0;
+
+    [Parameter]
+    public int ScrollOffsetY { get; set; } = 0;
+
+    [Parameter]
+    public double Scale { get; set; } = 1;
+
+    [Parameter]
+    public double ScaleMax { get; set; }
+
+    [Parameter]
+    public double ScaleMin { get; set; }
+
+    [Parameter]
+    public double ScaleStep { get; set; }
+
+    [Parameter]
+    public Action<double> OnScaleChanged { get; set; }
+
+    public Token DraggedToken { get; set; }
+    public int DraggedTokenStartPosX { get; set; }
+    public int DraggedTokenStartPosY { get; set; }
+
     private int _tileSize { get; set; } = 50;
     private string _containerStyle { get; set; }
     private Canvas2DContext _context { get; set; }
     protected BECanvasComponent _canvasRef { get; set; }
 
-    public Character DraggedCharacter { get; set; }
+    private double _viewHeight { get; set; }
+    private double _viewWidth { get; set; }
+    private double _maxScrollX { get; set; }
+    private double _maxScrollY { get; set; }
+    private double _startScale { get; set; } = -1;
 
     protected override void OnInitialized()
     {
@@ -48,45 +89,65 @@
 
             // Set Canvas height from map dimensions
             await jsr.InvokeVoidAsync("canvasMethods.setDimensions", (Map.Height * _tileSize) + 1, (Map.Width * _tileSize) + 1);
-            await jsr.InvokeVoidAsync("canvasMethods.centerCanvas");
-            await jsr.InvokeVoidAsync("inputHandler.initialize", DotNetObjectReference.Create(this), 0.5, 1.5, 0.1);
 
             // Draw Canvas
             await RedrawCanvas();
+
+            // Get window dimensions
+            var dim = await jsr.InvokeAsync<WindowDimension>("canvasMethods.getWindowDimensions");
+            _viewHeight = dim.Height;
+            _viewWidth = dim.Width;
+            // If viewport is smaller than map, scroll to center
+            if (_viewHeight < (Map.Height * _tileSize) || (_viewWidth < (Map.Width * _tileSize)))
+            {
+                var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
+                var dy = ((Map.Height * _tileSize) * Scale) - _viewHeight;
+                _maxScrollX = dx;
+                _maxScrollY = dy;
+                ScrollOffsetX = (int)(dx / 2);
+                ScrollOffsetY = (int)(dy / 2);
+                await jsr.InvokeVoidAsync("canvasMethods.scrollWindow", ScrollOffsetX, ScrollOffsetY);
+            }
         }
 
         await base.OnInitializedAsync();
     }
 
-    [JSInvokable]
-    public async Task TokenMove(int charId, int newX, int newY)
+    public void Zoom(double scale)
     {
-        var character = db.Characters.SingleOrDefault(c => c.ID == charId);
-        if (character != null)
-        {
-            character.X = newX / _tileSize;
-            character.Y = newY / _tileSize;
-            await db.SaveChangesAsync();
-        }
-    }
+        Scale = scale;
+        // Set container style
+        _containerStyle = string.Format("height: {0}px; width: {1}px; zoom: {2}; -moz-transform: scale({2});"
+            , Map.Height * _tileSize
+            , Map.Width * _tileSize
+            , Scale);
 
-    public async Task Zoom(double scale)
-    {
-        await jsr.InvokeVoidAsync("inputHandler.zoom", scale);
+        ResetMaxScroll();
         StateHasChanged();
     }
 
-    public void SaveDB()
+    public void HandleTouchScale(double startDist, double newDist)
     {
-        db.SaveChanges();
+        if (_startScale == -1) {
+            _startScale = Scale;
+        }
+        jsr.InvokeAsync<string>("console.log", string.Format("canvas touchscale: startDist: {0}, newDist: {1}, curScale: {2}", startDist, newDist, Scale));
+        var _touchScale = (newDist / startDist) * _startScale;
+        if (_touchScale >= ScaleMin && _touchScale <= ScaleMax)
+        {
+            OnScaleChanged?.Invoke(_touchScale);
+        }
+    }
+
+    public void ResetMaxScroll()
+    {
+        var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
+        var dy = ((Map.Height * _tileSize) * Scale) - _viewHeight;
+        _maxScrollX = dx;
+        _maxScrollY = dy;
     }
 
     private async Task RedrawCanvas()
-    {
-        await DrawGrid();
-    }
-
-    private async Task DrawGrid()
     {
         for (var x = 0; x <= (Map.Width * _tileSize); x += _tileSize)
         {
@@ -102,5 +163,85 @@
 
         await _context.SetStrokeStyleAsync("black");
         await _context.StrokeAsync();
+    }
+
+    private void HandleMapDragStart(CanvasEventArgs e)
+    {
+        if (DraggedToken == null)
+        {
+            jsr.InvokeAsync<string>("console.log", string.Format("canvas mousedown: x: {0}, y: {1}", e.ClientX, e.ClientY));
+        }
+    }
+
+    private void HandleMapDrag(CanvasEventArgs e)
+    {
+
+        // If no token is currently being dragged..
+        if (DraggedToken == null)
+        {
+            // Calculate the current scroll offset and send it to javascript
+            var curScrollX = ScrollOffsetX - (e.DeltaX * (1/Scale));
+            var curScrollY = ScrollOffsetY - (e.DeltaY * (1/Scale));
+            jsr.InvokeVoidAsync("canvasMethods.scrollWindow", curScrollX, curScrollY);
+        }
+        else
+        {
+            // Token is being dragged
+            var dx = e.DeltaX * (1/Scale);
+            var dy = e.DeltaY * (1/Scale);
+            jsr.InvokeAsync<string>("console.log", string.Format("token drag: x: {0}, dx: {1}, offsetx: {2}, actx: {3}", e.StartX, e.DeltaX, dx, dy));
+            DraggedToken.Character.X = DraggedTokenStartPosX + ((int)(dx / _tileSize) * _tileSize);
+            DraggedToken.Character.Y = DraggedTokenStartPosY + ((int)(dy / _tileSize) * _tileSize);
+            DraggedToken.SetCharacterPosition();
+        }
+    }
+
+    private void HandleMapDragEnd(CanvasEventArgs e)
+    {
+        // If no token is currently being dragged..
+        if (DraggedToken == null)
+        {
+            // .. Set final offset within the bounds of the min/max scroll positions
+            if (ScrollOffsetX - (e.DeltaX * (1/Scale)) <= 0)
+                ScrollOffsetX = 0;
+            else if (ScrollOffsetX - (e.DeltaX * (1/Scale)) >= _maxScrollX)
+                ScrollOffsetX = (int)_maxScrollX;
+            else
+                ScrollOffsetX = ScrollOffsetX - (int)(e.DeltaX * (1/Scale));
+
+            if (ScrollOffsetY - (e.DeltaY * (1/Scale)) <= 0)
+                ScrollOffsetY = 0;
+            else if (ScrollOffsetY - (e.DeltaY * (1/Scale)) >= _maxScrollY)
+                ScrollOffsetY = (int)_maxScrollY;
+            else
+                ScrollOffsetY = ScrollOffsetY - (int)(e.DeltaY * (1/Scale));
+
+            // .. Send scroll offset to javascript
+            jsr.InvokeVoidAsync("canvasMethods.scrollWindow", ScrollOffsetX, ScrollOffsetY);
+        }
+
+        // Token is still dragging..
+        if (DraggedToken != null)
+        {
+            // .. Reset dragged token
+            DraggedToken = null;
+        }
+
+        _startScale = -1;
+        jsr.InvokeAsync<string>("console.log", "reset startscale");
+    }
+
+    private void HandleZoom(bool dir)
+    {
+        if (dir && (Scale + ScaleStep <= ScaleMax))
+        {
+            // Zoom in
+            OnScaleChanged?.Invoke(Scale + ScaleStep);
+        }
+        else if (!dir && (Scale - ScaleStep >= ScaleMin))
+        {
+            // Zoom out
+            OnScaleChanged?.Invoke(Scale - ScaleStep);
+        }
     }
 }

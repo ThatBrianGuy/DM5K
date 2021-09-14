@@ -1,23 +1,77 @@
-﻿<div class="container">
+﻿@inject IJSRuntime jsr
+
+<div class="container">
     <div class="row">
         <div class="two columns">
-            <button type="button" id="main-game-zoom-slider-minus" class="button button-primary zoom-button">-</button>
+            <button type="button" @onclick="@OnZoomMinus" class="button button-primary zoom-button">
+                <span class="material-icons">remove</span>
+            </button>
         </div>
-        <div class="eight columns">
-            <input type="range" min="@MinValue" max="@MaxValue" step="0.1"
-                   class="slider" id="main-game-zoom-slider" />
+        <div class="six columns">
+            <input type="range" min="@MinValue" max="@MaxValue"
+                   @bind-value="@ZoomValue" step="@ScaleStep"
+                   class="slider" id="main-game-zoom-slider"
+                   @oninput="@((ChangeEventArgs e) => OnSliderChanged(e))" />
         </div>
         <div class="two columns">
-            <button type="button" id="main-game-zoom-slider-plus" class="button button-primary zoom-button">+</button>
+            <button type="button" @onclick="@OnZoomPlus" class="button button-primary zoom-button">
+                <span class="material-icons">add</span>
+            </button>
+        </div>
+        <div class="two columns">
+            <button type="button" @onclick="@ToggleFullScreen" class="button button-primary zoom-button">
+                <span class="material-icons">fullscreen</span>
+            </button>
         </div>
     </div>
 </div>
 
 @code {
     [Parameter]
-    public double MaxValue { get; set; } = 50;
+    public double ZoomValue { get; set; }
 
     [Parameter]
-    public double MinValue { get; set; } = 150;
+    public Action<double> OnZoomSliderChanged { get; set; }
 
+    [Parameter]
+    public double MaxValue { get; set; }
+
+    [Parameter]
+    public double MinValue { get; set; }
+
+    [Parameter]
+    public double ScaleStep { get; set; }
+
+    private void OnSliderChanged(ChangeEventArgs e)
+    {
+        ZoomValue = double.Parse(e.Value.ToString());
+        OnZoomSliderChanged?.Invoke(ZoomValue);
+    }
+
+    private void OnZoomPlus()
+    {
+        if ((ZoomValue + ScaleStep) <= MaxValue)
+        {
+            ZoomValue += ScaleStep;
+            //_value = ZoomValue;
+            OnZoomSliderChanged?.Invoke(ZoomValue);
+        }
+
+    }
+
+    private void OnZoomMinus()
+    {
+        if ((ZoomValue - ScaleStep) >= MinValue)
+        {
+            ZoomValue -= ScaleStep;
+            //_value = ZoomValue;
+            OnZoomSliderChanged?.Invoke(ZoomValue);
+        }
+
+    }
+
+    private void ToggleFullScreen()
+    {
+        jsr.InvokeVoidAsync("canvasMethods.toggleFullscreen");
+    }
 }

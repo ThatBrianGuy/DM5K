@@ -632,24 +632,23 @@ input[type=range]:focus::-ms-fill-upper {
   background: #42858C; }
 
 div.token {
-  position: absolute;
-  height: 50px;
-  width: 50px; }
+  position: relative;
+  height: 0px;
+  width: 0px; }
 
 div.token-selected {
   border: 2px solid green; }
 
-div.token-content {
-  background-color: red;
-  user-select: none;
-  height: 100%;
-  width: 100%; }
+div.token > img {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -o-user-select: none;
+  user-select: none; }
 
 body {
   background-color: #FDEED8;
   color: #ffffff;
-  height: 0;
-  width: 0;
   overscroll-behavior: none; }
 
 /* Override Skeleton form style */
@@ -659,13 +658,20 @@ form {
 button, input, optgroup, select, textarea {
   color: initial !important; }
 
-.canvas-container {
-  position: absolute;
-  z-index: -1;
-  cursor: grab; }
+#main-game-fullscreen-container {
+  background-color: #FDEED8; }
+
+/*.canvas-container {
+    position: absolute;
+    z-index: -1;
+    cursor: grab;
+}
 
 .canvas-container-grabbing {
-  cursor: grabbing !important; }
+    cursor: grabbing !important;
+}*/
+button.zoom-button {
+  padding: 0.5rem !important; }
 
 .main-game-zoom-slider-container {
   position: fixed;
@@ -685,11 +691,16 @@ button, input, optgroup, select, textarea {
   transition-timing-function: ease-in; }
 
 div.main-game-container {
+  width: calc(100vw - 40em);
+  height: 100vh;
   transition-property: width;
   transition-duration: 0.25s;
   transition-timing-function: ease-in;
   cursor: grab;
   overflow: auto; }
+
+div.main-game-container-expanded {
+  width: 100vw; }
 
 button.main-game-menu-toggle {
   position: fixed;

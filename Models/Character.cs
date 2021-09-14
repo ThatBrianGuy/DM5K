@@ -5,6 +5,7 @@
         public int ID { get; set; }
         public string Name { get; set; }
         public CharacterProperties Properties { get; set; }
+        public string Url { get; set; }
         public string OwnerName { get; set; }
         public int X { get; set; }
         public int Y { get; set; }

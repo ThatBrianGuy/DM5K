@@ -9,8 +9,6 @@
 body {
     background-color: $map-background;
     color: $foreground;
-    height: 0;
-    width: 0;
     overscroll-behavior: none;
 }
 
@@ -22,7 +20,11 @@ button, input, optgroup, select, textarea {
     color: initial !important;
 }
 
-.canvas-container {
+#main-game-fullscreen-container {
+    background-color: $map-background;
+}
+
+/*.canvas-container {
     position: absolute;
     z-index: -1;
     cursor: grab;
@@ -30,6 +32,10 @@ button, input, optgroup, select, textarea {
 
 .canvas-container-grabbing {
     cursor: grabbing !important;
+}*/
+
+button.zoom-button {
+    padding: 0.5rem !important;
 }
 
 .main-game-zoom-slider-container {
@@ -52,11 +58,17 @@ button, input, optgroup, select, textarea {
 }
 
 div.main-game-container {
+    width: calc(100vw - 40em);
+    height: 100vh;
     transition-property: width;
     transition-duration: 0.25s;
     transition-timing-function: ease-in;
     cursor: grab;
     overflow:auto;
+}
+
+div.main-game-container-expanded {
+    width: 100vw;
 }
 
 button.main-game-menu-toggle {
