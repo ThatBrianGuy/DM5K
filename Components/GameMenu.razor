@@ -2,9 +2,6 @@
 @using DM5K.Shared
 
 <div class="main-game-menu @(MenuExpanded ? "main-game-menu-expanded" : "")">
-    <AccordionItem Title="Login">
-        <LoginDisplay></LoginDisplay>
-    </AccordionItem>
     <AccordionItem Title="Campaign">
         <form>
             <div class="row">
@@ -42,6 +39,9 @@
             </div>
         </form>
     </AccordionItem>
+    <div class="main-game-menu-bottom-container">
+        <LoginDisplay></LoginDisplay>
+    </div>
 </div>
 
 @code {

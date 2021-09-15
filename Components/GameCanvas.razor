@@ -14,7 +14,6 @@
               OnDrag="@HandleMapDrag"
               OnDragEnd="@HandleMapDragEnd"
               OnZoom="@HandleZoom"
-              OnTouchScale="@HandleTouchScale"
               CssClass="canvas-container"
               CssStyle="@_containerStyle">
     <CascadingValue Value="this">
@@ -134,19 +133,6 @@
         StateHasChanged();
     }
 
-    public void HandleTouchScale(double startDist, double newDist)
-    {
-        if (_startScale == -1) {
-            _startScale = Scale;
-        }
-        jsr.InvokeAsync<string>("console.log", string.Format("canvas touchscale: startDist: {0}, newDist: {1}, curScale: {2}", startDist, newDist, Scale));
-        var _touchScale = (newDist / startDist) * _startScale;
-        if (_touchScale >= ScaleMin && _touchScale <= ScaleMax)
-        {
-            OnScaleChanged?.Invoke(_touchScale);
-        }
-    }
-
     public void ResetMaxScroll()
     {
         var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
@@ -240,17 +226,63 @@
         jsr.InvokeAsync<string>("console.log", "reset startscale");
     }
 
-    private void HandleZoom(bool dir)
+    private void HandleZoom(ZoomEventArgs e)
     {
-        if (dir && (Scale + ScaleStep <= ScaleMax))
+        // Pinch zoom event
+        if (e.StartDistance > 0)
         {
-            // Zoom in
-            OnScaleChanged?.Invoke(Scale + ScaleStep);
+            if (_startScale == -1)
+            {
+                _startScale = Scale;
+            }
+            jsr.InvokeAsync<string>("console.log", string.Format("canvas touchscale: startDist: {0}, newDist: {1}, curScale: {2}", e.StartDistance, e.NewDistance, Scale));
+            var _touchScale = (e.NewDistance / e.StartDistance) * _startScale;
+            if (_touchScale >= ScaleMin && _touchScale <= ScaleMax)
+            {
+                OnScaleChanged?.Invoke(_touchScale);
+            }
         }
-        else if (!dir && (Scale - ScaleStep >= ScaleMin))
+        else
         {
-            // Zoom out
-            OnScaleChanged?.Invoke(Scale - ScaleStep);
+            // Mouse wheel zoom event
+            if (e.ZoomDirection && (Scale + ScaleStep <= ScaleMax))
+            {
+                // Zoom in
+                OnScaleChanged?.Invoke(Scale + ScaleStep);
+            }
+            else if (!e.ZoomDirection && (Scale - ScaleStep >= ScaleMin))
+            {
+                // Zoom out
+                OnScaleChanged?.Invoke(Scale - ScaleStep);
+            }
         }
+
+        //// Scroll window to center on zoom event
+        //// .. Set final offset within the bounds of the min/max scroll positions
+        //if (ScrollOffsetX + (e.ClientX * Scale) <= 0)
+        //    ScrollOffsetX = 0;
+        //else if (ScrollOffsetX + (e.ClientX * Scale) >= _maxScrollX)
+        //    ScrollOffsetX = (int)_maxScrollX;
+        //else
+        //    ScrollOffsetX = ScrollOffsetX + (int)(e.ClientX * Scale);
+
+        //if (ScrollOffsetY + (e.ClientY * Scale) <= 0)
+        //    ScrollOffsetY = 0;
+        //else if (ScrollOffsetY + (e.ClientY * Scale) >= _maxScrollY)
+        //    ScrollOffsetY = (int)_maxScrollY;
+        //else
+        //    ScrollOffsetY = ScrollOffsetY + (int)(e.ClientY * Scale);
+
+        //var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
+        //var dy = ((Map.Height * _tileSize) * Scale) - _viewHeight;
+
+        var relativeClientX = ScrollOffsetX + (e.ClientX * (1 / Scale));
+        var relativeClientY = ScrollOffsetY + (e.ClientY * (1 / Scale));
+
+        ScrollOffsetX = (int)(relativeClientX / 2);
+        ScrollOffsetY = (int)(relativeClientY / 2);
+
+        // .. Send scroll offset to javascript
+        jsr.InvokeVoidAsync("canvasMethods.scrollWindow", ScrollOffsetX, ScrollOffsetY);
     }
 }

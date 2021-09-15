@@ -15,12 +15,10 @@
         }
 
     },
-    zoom: function (scale) {
-        alert(scale);
-    },
-    scrollWindow: function (x, y) {
+    scrollWindow: function (x, y, cx, cy) {
         var c = document.getElementById('main-game-container');
         c.scrollTo(x, y);
+        console.log('scrolled to x:' + x + ', y:' + y + ', cx:' + cx + ', cy:' + cy);
     },
     getWindowDimensions: function () {
         var c = document.getElementById('main-game-container');

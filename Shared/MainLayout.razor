@@ -1,3 +1,13 @@
 ﻿@inherits LayoutComponentBase
+@inject NavigationManager NavManager
 
-@Body
+<AuthorizeView>
+    <Authorized>
+        @Body
+    </Authorized>
+    <NotAuthorized>
+        @{ 
+            NavManager.NavigateTo("Identity/Account/Login", true);
+        }
+    </NotAuthorized>
+</AuthorizeView>

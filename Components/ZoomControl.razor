@@ -1,30 +1,23 @@
 ﻿@inject IJSRuntime jsr
 
-<div class="container">
-    <div class="row">
-        <div class="two columns">
+
             <button type="button" @onclick="@OnZoomMinus" class="button button-primary zoom-button">
                 <span class="material-icons">remove</span>
             </button>
-        </div>
-        <div class="six columns">
+
             <input type="range" min="@MinValue" max="@MaxValue"
                    @bind-value="@ZoomValue" step="@ScaleStep"
                    class="slider" id="main-game-zoom-slider"
                    @oninput="@((ChangeEventArgs e) => OnSliderChanged(e))" />
-        </div>
-        <div class="two columns">
+
             <button type="button" @onclick="@OnZoomPlus" class="button button-primary zoom-button">
                 <span class="material-icons">add</span>
             </button>
-        </div>
-        <div class="two columns">
+
             <button type="button" @onclick="@ToggleFullScreen" class="button button-primary zoom-button">
                 <span class="material-icons">@(_fullscreenState ? "fullscreen_exit" : "fullscreen")</span>
             </button>
-        </div>
-    </div>
-</div>
+
 
 @code {
     [Parameter]

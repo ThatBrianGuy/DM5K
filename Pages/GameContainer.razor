@@ -5,6 +5,8 @@
 @using DM5K.Models
 
 @inject DM5KDbContext db
+@inject NavigationManager NavManager
+
 <div id="main-game-fullscreen-container">
     <div class="main-game-menu-buttons-container">
         <button @onclick="OnToggleNavMenu" class="main-game-menu-button button-primary">
@@ -47,12 +49,13 @@
         base.OnInitialized();
     }
 
-    protected override Task OnInitializedAsync()
+    protected async override Task OnInitializedAsync()
     {
+        
+
         Campaigns = db.Campaigns.Include(x => x.Maps).Include(y => y.Characters).ToList();
         SelectedCampaign = Campaigns.FirstOrDefault();
         SelectedMap = SelectedCampaign.Maps.FirstOrDefault();
-        return base.OnInitializedAsync();
     }
 
     private void OnToggleNavMenu()

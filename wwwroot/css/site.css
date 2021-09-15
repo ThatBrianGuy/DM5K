@@ -658,6 +658,9 @@ form {
 button, input, optgroup, select, textarea {
   color: #4D5256 !important; }
 
+div.main-game-zoom-slider-container > input[type=range] {
+  width: 200px; }
+
 #main-game-fullscreen-container {
   background-color: #FDEED8; }
 
@@ -673,34 +676,84 @@ button, input, optgroup, select, textarea {
 button.zoom-button {
   padding: 0.5rem !important; }
 
-.main-game-zoom-slider-container {
-  position: fixed;
-  bottom: 1.5em;
-  left: 1.5em;
-  width: 40rem;
-  left: 50vw;
-  transform: translate(-50%, 0);
-  transition-property: left;
-  transition-duration: 0.25s;
-  transition-timing-function: ease-in; }
-
-.main-game-zoom-slider-container-expanded {
-  left: calc(50vw - 20em) !important;
-  transition-property: left;
-  transition-duration: 0.25s;
-  transition-timing-function: ease-in; }
-
 div.main-game-container {
-  width: calc(100vw - 40em);
-  height: 100vh;
-  transition-property: width;
-  transition-duration: 0.25s;
-  transition-timing-function: ease-in;
   cursor: grab;
   overflow: auto; }
 
-div.main-game-container-expanded {
-  width: 100vw; }
+div.main-game-menu {
+  background-color: #35393C;
+  touch-action: none; }
+
+div.main-game-menu-bottom-container {
+  background-color: #4D5256;
+  padding: 1em;
+  position: fixed;
+  bottom: 0px;
+  width: 100%; }
+
+@media (max-width: 670px) {
+  div.main-game-zoom-slider-container > input[type=range] {
+    display: none !important; } }
+
+@media (orientation: landscape) {
+  div.main-game-container {
+    width: calc(100vw - 40em);
+    height: 100vh;
+    transition-property: width;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in; }
+  div.main-game-container-expanded {
+    width: 100vw; }
+  div.main-game-menu {
+    height: 100vh;
+    width: 40em;
+    position: fixed;
+    right: -40em;
+    transition-property: right;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in; }
+  div.main-game-menu-expanded {
+    right: 0em !important; }
+  .main-game-zoom-slider-container {
+    position: fixed;
+    bottom: 1.5em;
+    left: 50vw;
+    transform: translate(-50%, 0);
+    transition-property: left;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in; }
+  .main-game-zoom-slider-container-expanded {
+    left: calc(50vw - 20em) !important; } }
+
+@media (orientation: portrait) {
+  div.main-game-container {
+    width: 100vw;
+    height: 50vh;
+    transition-property: height;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in; }
+  div.main-game-container-expanded {
+    height: 100vh; }
+  div.main-game-menu {
+    height: 50vh;
+    width: 100vw;
+    top: 100vh;
+    position: fixed;
+    transition-property: top;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in; }
+  div.main-game-menu-expanded {
+    top: 50vh !important; }
+  .main-game-zoom-slider-container {
+    position: fixed;
+    bottom: 1.5em;
+    left: 50vw;
+    transform: translate(-50%, 0);
+    transition-property: bottom;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in; }
+  .main-game-zoom-slider-container-expanded {
+    bottom: 55vh !important; } }
 
 div.main-game-menu-buttons-container {
   position: fixed;
@@ -713,20 +766,6 @@ button.main-game-menu-button {
   margin-bottom: 2rem;
   margin-bottom: 0.5rem;
   display: block; }
-
-div.main-game-menu {
-  transition-property: right;
-  transition-duration: 0.25s;
-  transition-timing-function: ease-in;
-  height: 100vh;
-  width: 40em;
-  position: fixed;
-  right: -40em;
-  background-color: #35393C;
-  touch-action: none; }
-
-div.main-game-menu-expanded {
-  right: 0em !important; }
 
 #blazor-error-ui {
   background: lightyellow;
