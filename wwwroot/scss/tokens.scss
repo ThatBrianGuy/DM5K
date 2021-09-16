@@ -5,6 +5,12 @@ div.token {
     width: 0px;
 }
 
+div.token-unowned {
+    transition-property: all;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in;
+}
+
 div.token-selected {
     border: 2px solid green;
 }

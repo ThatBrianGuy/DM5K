@@ -1,11 +1,16 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client 
+@using Microsoft.AspNetCore.Components.Authorization 
 @using Microsoft.EntityFrameworkCore
 @using DM5K.Components
 @using DM5K.Data
-@using DM5K.Models
+@using DM5K.Models 
+@using System.Security.Claims 
 
-@inject DM5KDbContext db
+@implements IAsyncDisposable
+@inject IDbContextFactory<DM5KDbContext> DbFactory
 @inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <div id="main-game-fullscreen-container">
     <div class="main-game-menu-buttons-container">
@@ -21,21 +26,27 @@
                      ZoomValue="@_scale" ScaleStep="@_scaleStep"
                      OnZoomSliderChanged="@HandleCanvasScaleChanged" />
     </div>
-    <GameMenu Campaigns="@Campaigns" MenuExpanded="@_menuExpanded" />
+    <GameMenu MenuExpanded="@_menuExpanded" />
     <div id="main-game-container" class="main-game-container @(_menuExpanded ? "": "main-game-container-expanded")">
-        <GameCanvas @ref="_gameCanvasRef" Campaign="@SelectedCampaign"
+        <GameCanvas @ref="_gameCanvasRef" Characters="CampaignCharacters"
                     Map="@SelectedMap" ScaleStep="@_scaleStep"
                     ScaleMin="@_scaleMin" ScaleMax="@_scaleMax"
-                    OnScaleChanged="@HandleCanvasScaleChanged" />
+                    OnScaleChanged="@HandleCanvasScaleChanged"
+                    OnSaveMe="@HandleSaveCharacter"
+                    CurrentUsername="@_currentUsername"/>
     </div>
 </div>
 
 @code {
 
-    public IEnumerable<Campaign> Campaigns { get; set; }
+    public ICollection<Campaign> Campaigns { get; set; }
     public Campaign SelectedCampaign { get; set; }
+    public ICollection<Character> CampaignCharacters { get; set; }
+    public ICollection<Map> CampaignMaps { get; set; }
     public Map SelectedMap { get; set; }
 
+    private string _currentUsername { get; set; }
+    private HubConnection _gameHub { get; set; }
     private GameCanvas _gameCanvasRef { get; set; }
     private bool _menuExpanded { get; set; }
     private string _menuClass { get; set; }
@@ -49,14 +60,28 @@
         base.OnInitialized();
     }
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        
 
-        Campaigns = db.Campaigns.Include(x => x.Maps).Include(y => y.Characters).ToList();
-        SelectedCampaign = Campaigns.FirstOrDefault();
-        SelectedMap = SelectedCampaign.Maps.FirstOrDefault();
+        OnRefresh();
+
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        _currentUsername = user.Identity.Name;
+
+        _gameHub = new HubConnectionBuilder()
+        .WithUrl(NavManager.ToAbsoluteUri("/gamehub"))
+        .Build();
+
+        _gameHub.On("SyncDBCommand", () =>
+        {
+            OnRefresh();
+        });
+
+        await _gameHub.StartAsync();
     }
+
+    async Task AdviseSyncDB() => await _gameHub.SendAsync("SyncDB");
 
     private void OnToggleNavMenu()
     {
@@ -65,9 +90,25 @@
         StateHasChanged();
     }
 
-    private async Task OnRefresh()
+    private void OnRefresh()
     {
+        using var _localDb = DbFactory.CreateDbContext();
+
+        Campaigns = _localDb.Campaigns.ToList();
+        SelectedCampaign = Campaigns.FirstOrDefault();
+        CampaignMaps = _localDb.Maps.ToList();
+        SelectedMap = CampaignMaps.FirstOrDefault();
+        CampaignCharacters = _localDb.Characters.Where(x => x.Campaign == SelectedCampaign).ToList();
         StateHasChanged();
+    }
+
+    private void HandleSaveCharacter(Character c)
+    {
+        using var _localDb = DbFactory.CreateDbContext();
+
+        _localDb.Characters.Update(c);
+        _localDb.SaveChanges();
+        AdviseSyncDB();
     }
 
     private void HandleCanvasScaleChanged(double scale)
@@ -75,5 +116,13 @@
         _scale = scale;
         _gameCanvasRef.Zoom(scale);
         StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_gameHub is not null)
+        {
+            await _gameHub.DisposeAsync();
+        }
     }
 }

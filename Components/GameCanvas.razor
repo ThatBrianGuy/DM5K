@@ -4,10 +4,8 @@
 @using DM5K.Data
 @using DM5K.Models
 @using DM5K.Helpers
-@using DM5K.Components 
 
 @inject IJSRuntime jsr
-@inject DM5KDbContext db
 
 <InputHandler ID="canvas-container"
               OnPressDown="@HandleMapDragStart"
@@ -17,9 +15,9 @@
               CssClass="canvas-container"
               CssStyle="@_containerStyle">
     <CascadingValue Value="this">
-        @foreach (var c in Campaign?.Characters)
+        @foreach (var c in Characters)
         {
-            <Token TileSize="@_tileSize" Character="@c"></Token>
+            <Token TileSize="@_tileSize" Character="@c" IsOwned="@(c.OwnerName == CurrentUsername)"></Token>
         }
     </CascadingValue>
     <BECanvas @ref="_canvasRef" />
@@ -28,7 +26,10 @@
 @code {
 
     [Parameter]
-    public Campaign Campaign { get; set; }
+    public ICollection<Character> Characters { get; set; }
+
+    [Parameter]
+    public string CurrentUsername { get; set; }
 
     [Parameter]
     public Map Map { get; set; }
@@ -53,6 +54,9 @@
 
     [Parameter]
     public Action<double> OnScaleChanged { get; set; }
+
+    [Parameter]
+    public Action<Character> OnSaveMe { get; set; }
 
     public Token DraggedToken { get; set; }
     public int DraggedTokenStartPosX { get; set; }
@@ -185,7 +189,6 @@
             jsr.InvokeAsync<string>("console.log", string.Format("token drag: x: {0}, dx: {1}, offsetx: {2}, actx: {3}", e.StartX, e.DeltaX, dx, dy));
             DraggedToken.Character.X = DraggedTokenStartPosX + ((int)(dx / _tileSize) * _tileSize);
             DraggedToken.Character.Y = DraggedTokenStartPosY + ((int)(dy / _tileSize) * _tileSize);
-            DraggedToken.SetCharacterPosition();
         }
     }
 
@@ -216,10 +219,10 @@
         // Token has finished dragging..
         if (DraggedToken != null)
         {
+            // .. Save the changes to the DB
+            OnSaveMe?.Invoke(DraggedToken.Character);
             // .. Reset dragged token
             DraggedToken = null;
-            // .. Save the changes to the DB
-            db.SaveChanges();
         }
 
         _startScale = -1;

@@ -33,6 +33,7 @@ namespace DM5K.Data
                         {
                             Name = "Guy",
                             OwnerName = "brian@brian.com",
+                            Url = "http://i.imgur.com/1UrtFFn.png",
                             Properties = new CharacterProperties()
                             {
                                 Height = 60,
@@ -43,6 +44,7 @@ namespace DM5K.Data
                         {
                             Name = "Bob",
                             OwnerName = "brian@brian.com",
+                            Url = "http://i.imgur.com/1UrtFFn.png",
                             Properties = new CharacterProperties()
                             {
                                 Height = 30,

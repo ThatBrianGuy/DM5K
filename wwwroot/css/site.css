@@ -636,6 +636,11 @@ div.token {
   height: 0px;
   width: 0px; }
 
+div.token-unowned {
+  transition-property: all;
+  transition-duration: 0.25s;
+  transition-timing-function: ease-in; }
+
 div.token-selected {
   border: 2px solid green; }
 
@@ -687,7 +692,7 @@ div.main-game-menu {
 div.main-game-menu-bottom-container {
   background-color: #4D5256;
   padding: 1em;
-  position: fixed;
+  position: absolute;
   bottom: 0px;
   width: 100%; }
 

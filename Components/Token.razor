@@ -1,9 +1,11 @@
-﻿@using DM5K.Models
+﻿@using DM5K.Data
+@using DM5K.Models
 @using DM5K.Helpers
+
 @inject IJSRuntime jsr
 
-<InputHandler CssClass="flex-column token"
-              CssStyle="@_tokenStyle"
+<InputHandler CssClass="@(IsOwned ? "flex-column token token-owned" : "flex-column token token-unowned")"
+              CssStyle="@string.Format("left: {0}px; top: {1}px;", Character.X, Character.Y)"
               OnPressDown="@HandleOnPressDown"
               ID="@string.Format("character-id-{0}", Character.ID)">
     <ChildContent>
@@ -19,26 +21,24 @@
     public Character Character { get; set; }
 
     [Parameter]
-    public int TileSize { get; set; }
+    public bool IsOwned { get; set; }
 
-    private string _tokenStyle { get; set; }
+    [Parameter]
+    public int TileSize { get; set; }
 
     protected override void OnInitialized()
     {
-        SetCharacterPosition();
         base.OnInitialized();
     }
 
     public void HandleOnPressDown(CanvasEventArgs e)
     {
-        Container.DraggedToken = this;
-        Container.DraggedTokenStartPosX = this.Character.X;
-        Container.DraggedTokenStartPosY = this.Character.Y;
-        jsr.InvokeAsync<string>("console.log", string.Format("token mousedown: x: {0}, y: {1}, dx: {2}, dy: {3}", e.StartX, e.StartY, e.DeltaX, e.DeltaY));
-    }
-
-    public void SetCharacterPosition()
-    {
-        _tokenStyle = string.Format("left: {0}px; top: {1}px;", Character.X, Character.Y);
+        if (IsOwned)
+        {
+            Container.DraggedToken = this;
+            Container.DraggedTokenStartPosX = this.Character.X;
+            Container.DraggedTokenStartPosY = this.Character.Y;
+            jsr.InvokeAsync<string>("console.log", string.Format("token mousedown: x: {0}, y: {1}, dx: {2}, dy: {3}", e.StartX, e.StartY, e.DeltaX, e.DeltaY));
+        }
     }
 }

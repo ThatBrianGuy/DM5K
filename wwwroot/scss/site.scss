@@ -54,7 +54,7 @@ div.main-game-menu {
 div.main-game-menu-bottom-container {
     background-color: $content-dark;
     padding: 1em;
-    position: fixed;
+    position: absolute;
     bottom: 0px;
     width: 100%;
 }
