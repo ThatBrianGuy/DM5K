@@ -58,9 +58,11 @@
     [Parameter]
     public Action<Character> OnSaveMe { get; set; }
 
-    public Token DraggedToken { get; set; }
-    public int DraggedTokenStartPosX { get; set; }
-    public int DraggedTokenStartPosY { get; set; }
+    public Dictionary<Token, TokenPosition> DraggedTokens { get; set; } = new();
+
+    //public Token DraggedToken { get; set; }
+    //public int DraggedTokenStartPosX { get; set; }
+    //public int DraggedTokenStartPosY { get; set; }
 
     private int _tileSize { get; set; } = 50;
     private string _containerStyle { get; set; }
@@ -165,7 +167,7 @@
 
     private void HandleMapDragStart(CanvasEventArgs e)
     {
-        if (DraggedToken == null)
+        if (DraggedTokens.Count == 0)
         {
             jsr.InvokeAsync<string>("console.log", string.Format("canvas mousedown: x: {0}, y: {1}", e.ClientX, e.ClientY));
         }
@@ -174,7 +176,7 @@
     private void HandleMapDrag(CanvasEventArgs e)
     {
         // If no token is currently being dragged..
-        if (DraggedToken == null)
+        if (DraggedTokens.Count == 0)
         {
             // Calculate the current scroll offset and send it to javascript
             var curScrollX = ScrollOffsetX - (e.DeltaX * (1/Scale));
@@ -187,15 +189,20 @@
             var dx = e.DeltaX * (1/Scale);
             var dy = e.DeltaY * (1/Scale);
             jsr.InvokeAsync<string>("console.log", string.Format("token drag: x: {0}, dx: {1}, offsetx: {2}, actx: {3}", e.StartX, e.DeltaX, dx, dy));
-            DraggedToken.Character.X = DraggedTokenStartPosX + ((int)(dx / _tileSize) * _tileSize);
-            DraggedToken.Character.Y = DraggedTokenStartPosY + ((int)(dy / _tileSize) * _tileSize);
+            foreach(var t in DraggedTokens)
+            {
+                t.Key.Character.X = t.Value.X + ((int)(dx / _tileSize) * _tileSize);
+                t.Key.Character.Y = t.Value.Y + ((int)(dy / _tileSize) * _tileSize);
+            }
+            //DraggedToken.Character.X = DraggedTokenStartPosX + ((int)(dx / _tileSize) * _tileSize);
+            //DraggedToken.Character.Y = DraggedTokenStartPosY + ((int)(dy / _tileSize) * _tileSize);
         }
     }
 
     private void HandleMapDragEnd(CanvasEventArgs e)
     {
         // If no token is currently being dragged..
-        if (DraggedToken == null)
+        if (DraggedTokens.Count == 0)
         {
             // .. Set final offset within the bounds of the min/max scroll positions
             if (ScrollOffsetX - (e.DeltaX * (1/Scale)) <= 0)
@@ -217,12 +224,16 @@
         }
 
         // Token has finished dragging..
-        if (DraggedToken != null)
+        if (DraggedTokens.Count > 0)
         {
-            // .. Save the changes to the DB
-            OnSaveMe?.Invoke(DraggedToken.Character);
+            foreach(var t in DraggedTokens)
+            {
+                // .. Save the changes to the DB
+                OnSaveMe?.Invoke(t.Key.Character);
+            }
+
             // .. Reset dragged token
-            DraggedToken = null;
+            DraggedTokens.Clear();
         }
 
         _startScale = -1;

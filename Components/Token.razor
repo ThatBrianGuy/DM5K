@@ -4,7 +4,7 @@
 
 @inject IJSRuntime jsr
 
-<InputHandler CssClass="@(IsOwned ? "flex-column token token-owned" : "flex-column token token-unowned")"
+<InputHandler CssClass="@(string.Format("token {0} {1}", IsOwned ? "token-owned" : "token-unowned", Container.DraggedTokens.ContainsKey(this) ? "token-selected" : ""))"
               CssStyle="@string.Format("left: {0}px; top: {1}px;", Character.X, Character.Y)"
               OnPressDown="@HandleOnPressDown"
               ID="@string.Format("character-id-{0}", Character.ID)">
@@ -35,9 +35,10 @@
     {
         if (IsOwned)
         {
-            Container.DraggedToken = this;
-            Container.DraggedTokenStartPosX = this.Character.X;
-            Container.DraggedTokenStartPosY = this.Character.Y;
+            if (!Container.DraggedTokens.ContainsKey(this))
+            {
+                Container.DraggedTokens.Add(this, new TokenPosition() { X = this.Character.X, Y = this.Character.Y });
+            }
             jsr.InvokeAsync<string>("console.log", string.Format("token mousedown: x: {0}, y: {1}, dx: {2}, dy: {3}", e.StartX, e.StartY, e.DeltaX, e.DeltaY));
         }
     }

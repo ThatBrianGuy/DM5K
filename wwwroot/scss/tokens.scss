@@ -11,8 +11,9 @@ div.token-unowned {
     transition-timing-function: ease-in;
 }
 
-div.token-selected {
-    border: 2px solid green;
+div.token-selected > img {
+    border: 4px solid green;
+    margin: -4px;
 }
 
 div.token > img {
