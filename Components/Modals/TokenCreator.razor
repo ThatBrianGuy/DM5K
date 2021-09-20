@@ -1,0 +1,23 @@
+﻿@using DM5K.Models
+
+<h6>Available Icons</h6>
+@for (var i = 0; i <= (int)(Icons.Count() / 8); i++)
+{
+    <div class="grid">
+        @for (var j = 0; j < 8; j++)
+        {
+            <div class="icon-grid-item">
+                @if (((i * 8) + j) < Icons.Count())
+                {
+                    var icon = Icons[((i * 8) + j)];
+                    <img src="@icon.Url" height="80" width="80" />
+                }
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public IList<Icon> Icons { get; set; }
+}

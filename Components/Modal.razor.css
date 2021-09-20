@@ -1,0 +1,48 @@
+﻿.modal-hidden {
+    display: none !important; /* Hidden by default */
+}
+
+.modal {
+    display: block;
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+}
+
+.modal-body {
+    background-color: var(--background-color);
+    margin: 2% auto;
+    padding: 0.5rem;
+    border: var(--border-width) solid var(--table-border-color);
+    width: 92%;
+    height: 92%;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 0.5rem 0.5rem 1rem 0.5rem;
+    border-bottom: var(--border-width) solid var(--table-border-color);
+}
+
+.modal-header > button {
+    width: 2.2rem;
+    float: right;
+    margin: 0px;
+    line-height: 0px !important;
+    height: 2.2rem;
+    padding: 0px;
+}
+
+.modal-header > span {
+    font-size: 1.5rem;
+}
+
+.modal-content {
+    padding: 0.5em;
+    height: 80vh;
+    overflow: auto;
+}

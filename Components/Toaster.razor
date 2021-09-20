@@ -1,0 +1,19 @@
+﻿<div class="toaster toaster-top @(_isShowing ? "toaster-top-show" : "")">
+    <span>@_message</span>
+</div>
+
+@code {
+
+    private string _message { get; set; }
+    private bool _isShowing { get; set; }
+
+    public async void Show(string message, int delay = 2000)
+    {
+        _message = message;
+        _isShowing = true;
+        StateHasChanged();
+        await Task.Delay(delay);
+        _isShowing = false;
+        StateHasChanged();
+    }
+}

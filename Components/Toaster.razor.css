@@ -1,0 +1,21 @@
+﻿div.toaster {
+    position: absolute;
+    padding: 3rem;
+    width: 30em;
+    background: var(--background-color);
+    border-radius: 4px;
+    border: 2px solid var(--table-border-color);
+    transition-property: all;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-in;
+}
+
+div.toaster-top {
+    top: -10rem;
+    left: 50vw;
+    transform: translate(-50%, 0);
+}
+
+div.toaster-top-show {
+    top: 1rem;
+}

@@ -1,17 +1,20 @@
-﻿@using DM5K.Data
-@using DM5K.Models
+﻿@using DM5K.Models
 @using DM5K.Helpers
 
 @inject IJSRuntime jsr
 
-<InputHandler CssClass="@(string.Format("token {0} {1}", IsOwned ? "token-owned" : "token-unowned", Container.DraggedTokens.ContainsKey(this) ? "token-selected" : ""))"
-              CssStyle="@string.Format("left: {0}px; top: {1}px;", Character.X, Character.Y)"
-              OnPressDown="@HandleOnPressDown"
-              ID="@string.Format("character-id-{0}", Character.ID)">
-    <ChildContent>
-        <img src="@Character.Url" draggable="false" alt="Image" height="50" width="50" />
-    </ChildContent>
-</InputHandler>
+<span>
+    <InputHandler CssClass="@(string.Format("token {0} {1}", IsOwned ? "token-owned" : "token-unowned", Container.DraggedTokens.ContainsKey(this) ? "token-selected" : ""))"
+                  CssStyle="@string.Format("left: {0}px; top: {1}px;", Character.X, Character.Y)"
+                  OnPressDown="@HandleOnPressDown"
+                  ID="@string.Format("character-id-{0}", Character.ID)">
+        <ChildContent>
+            <img src="@Character.Url" draggable="false" alt="Image" height="50" width="50" />
+        </ChildContent>
+    </InputHandler>
+</span>
+
+
 
 @code {
     [CascadingParameter]

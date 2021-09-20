@@ -1,7 +1,6 @@
 ﻿@using Blazor.Extensions.Canvas
 @using Blazor.Extensions
 @using Blazor.Extensions.Canvas.Canvas2D
-@using DM5K.Data
 @using DM5K.Models
 @using DM5K.Helpers
 
@@ -59,10 +58,6 @@
     public Action<Character> OnSaveMe { get; set; }
 
     public Dictionary<Token, TokenPosition> DraggedTokens { get; set; } = new();
-
-    //public Token DraggedToken { get; set; }
-    //public int DraggedTokenStartPosX { get; set; }
-    //public int DraggedTokenStartPosY { get; set; }
 
     private int _tileSize { get; set; } = 50;
     private string _containerStyle { get; set; }
@@ -194,8 +189,6 @@
                 t.Key.Character.X = t.Value.X + ((int)(dx / _tileSize) * _tileSize);
                 t.Key.Character.Y = t.Value.Y + ((int)(dy / _tileSize) * _tileSize);
             }
-            //DraggedToken.Character.X = DraggedTokenStartPosX + ((int)(dx / _tileSize) * _tileSize);
-            //DraggedToken.Character.Y = DraggedTokenStartPosY + ((int)(dy / _tileSize) * _tileSize);
         }
     }
 
@@ -270,25 +263,6 @@
                 OnScaleChanged?.Invoke(Scale - ScaleStep);
             }
         }
-
-        //// Scroll window to center on zoom event
-        //// .. Set final offset within the bounds of the min/max scroll positions
-        //if (ScrollOffsetX + (e.ClientX * Scale) <= 0)
-        //    ScrollOffsetX = 0;
-        //else if (ScrollOffsetX + (e.ClientX * Scale) >= _maxScrollX)
-        //    ScrollOffsetX = (int)_maxScrollX;
-        //else
-        //    ScrollOffsetX = ScrollOffsetX + (int)(e.ClientX * Scale);
-
-        //if (ScrollOffsetY + (e.ClientY * Scale) <= 0)
-        //    ScrollOffsetY = 0;
-        //else if (ScrollOffsetY + (e.ClientY * Scale) >= _maxScrollY)
-        //    ScrollOffsetY = (int)_maxScrollY;
-        //else
-        //    ScrollOffsetY = ScrollOffsetY + (int)(e.ClientY * Scale);
-
-        //var dx = ((Map.Width * _tileSize) * Scale) - _viewWidth;
-        //var dy = ((Map.Height * _tileSize) * Scale) - _viewHeight;
 
         var relativeClientX = ScrollOffsetX + (e.ClientX * (1 / Scale));
         var relativeClientY = ScrollOffsetY + (e.ClientY * (1 / Scale));

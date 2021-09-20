@@ -1,0 +1,33 @@
+﻿<div class="modal @(IsShowing ? "" : "modal-hidden")">
+    <div class="modal-body">
+        <div class="modal-header">
+            <span>@ModalTitle</span>
+            <button role="button" @onclick="@Hide"><span class="material-icons">close</span></button>
+        </div>
+        <div class="modal-content">
+            @ChildContent
+        </div>
+    </div>
+
+</div>
+
+@code {
+    [Parameter]
+    public bool IsShowing { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public string ModalTitle { get; set; }
+
+    private void Hide()
+    {
+        IsShowing = false;
+    }
+
+    public void Show()
+    {
+        IsShowing = true;
+    }
+}

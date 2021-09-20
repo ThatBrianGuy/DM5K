@@ -1,0 +1,33 @@
+﻿div.accordion-item-header {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 400;
+    border-bottom: var(--border-width) solid var(--table-border-color);
+}
+
+div.accordion-item-header > button {
+    float: right;
+    line-height: 7px !important;
+    width: 4em;
+}
+
+div.accordion-item-content {
+    width: 100%;
+    -webkit-transition: max-height 0.25s;
+    -moz-transition: max-height 0.25s;
+    -o-transition: max-height 0.25s;
+    transition: max-height 0.25s;
+    overflow: hidden;
+    max-height: 0;
+}
+
+div.accordion-item-content.expanded {
+    max-height: 500px;
+}
+
+article.accordion-item-inner {
+    margin: 0px;
+}

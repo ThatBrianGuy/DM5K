@@ -2,16 +2,46 @@
 @using DM5K.Shared
 
 <div class="main-game-menu @(MenuExpanded ? "main-game-menu-expanded" : "")">
-    <AccordionItem Title="Campaign">
+    <AccordionItem Title="Tokens">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Owner</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var c in SelectedCampaign.Characters)
+                {
+                    <tr>
+                        <td>@c.Name</td>
+                        <td>@c.OwnerName</td>
+                        <td><img src="@c.Url"/></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="grid">
+            <div><button @onclick="@ShowTokenCreator">Add New</button></div>
+            <div><button>Hide Selected</button></div>
+            <div><button>Remove Selected</button></div>
+        </div>
     </AccordionItem>
-    <div class="main-game-menu-bottom-container">
+    @*<div class="main-game-menu-bottom-container">
         <LoginDisplay></LoginDisplay>
-    </div>
+    </div>*@
 </div>
 
 @code {
     [Parameter]
     public bool MenuExpanded { get; set; }
+
+    [Parameter]
+    public Campaign SelectedCampaign { get; set; }
+
+    [Parameter]
+    public EventCallback ShowTokenCreator { get; set; }
 
     protected override void OnInitialized()
     {

@@ -1,15 +1,15 @@
 ﻿
 <div class="accordion-item-header">
     <span>@Title</span>
-    <button class="button-primary" @onclick="OnExpandedClicked">
-        <span class="chevron @(_isExpanded ? "bottom" : "left")"></span>
+    <button @onclick="OnExpandedClicked">
+        <span class="material-icons">@(_isExpanded ? "expand_more" : "chevron_left")</span>
     </button>
 </div>
 
 <div class="accordion-item-content @(_isExpanded ? "expanded" : "")">
-    <div class="accordion-item-inner">
+    <article class="accordion-item-inner">
         @ChildContent
-    </div>
+    </article>
 </div>
 
 @code {

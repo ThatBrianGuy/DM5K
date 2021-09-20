@@ -18,7 +18,7 @@
     scrollWindow: function (x, y, cx, cy) {
         var c = document.getElementById('main-game-container');
         c.scrollTo(x, y);
-        console.log('scrolled to x:' + x + ', y:' + y + ', cx:' + cx + ', cy:' + cy);
+        //console.log('scrolled to x:' + x + ', y:' + y + ', cx:' + cx + ', cy:' + cy);
     },
     getWindowDimensions: function () {
         var c = document.getElementById('main-game-container');
@@ -46,9 +46,14 @@
 // left: 37, up: 38, right: 39, down: 40,
 // spacebar: 32, pageup: 33, pagedown: 34, end: 35, home: 36
 var keys = { 37: 1, 38: 1, 39: 1, 40: 1 };
-
+// Only block events that originate from canvas container, otherwise work normally
+let canvasContainer;
 function preventDefault(e) {
-    e.preventDefault();
+    if (canvasContainer == null)
+         canvasContainer = document.getElementById('canvas-container');
+    if (e.path.includes(canvasContainer)) {
+        e.preventDefault();
+    }
 }
 
 function preventDefaultForScrollKeys(e) {

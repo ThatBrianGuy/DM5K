@@ -1,0 +1,60 @@
+﻿#main-game-fullscreen-container {
+    background-color: var(--background-color);
+}
+
+div.main-game-menu-buttons-container {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+}
+
+div.main-game-menu-bottom-container {
+    padding: 1em;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+}
+
+.main-game-zoom-slider-container {
+    position: fixed;
+    left: 1em;
+    bottom: 1em;
+}
+
+div.main-game-container {
+    cursor: grab;
+    overflow: auto;
+    background-color: #FDEED8;
+}
+
+@media (orientation: portrait) {
+    div.main-game-zoom-slider-container-expanded {
+        display: none;
+    }
+
+    div.main-game-container {
+        width: 100vw;
+        height: 50vh;
+        /*        transition-property: height;
+        transition-duration: 0.25s;
+        transition-timing-function: ease-in;*/
+    }
+
+    div.main-game-container-expanded {
+        height: 100vh;
+    }
+}
+
+@media (orientation: landscape) {
+    div.main-game-container {
+        width: calc(100vw - 40em);
+        height: 100vh;
+        /*        transition-property: width;
+        transition-duration: 0.25s;
+        transition-timing-function: ease-in;*/
+    }
+
+    div.main-game-container-expanded {
+        width: 100vw;
+    }
+}
