@@ -88,6 +88,17 @@ namespace DM5K.Data
                                 Height = 30,
                                 Size = CharacterSize.Small
                             }
+                        },
+                        new Character()
+                        {
+                            Name = "Tom",
+                            OwnerName = "brian@brian.com",
+                            Url = "http://i.imgur.com/1UrtFFn.png",
+                            Properties = new CharacterProperties()
+                            {
+                                Height = 30,
+                                Size = CharacterSize.Small
+                            }
                         }
                     },
                     Maps = new List<Map>()
